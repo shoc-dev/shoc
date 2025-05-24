@@ -1,3 +1,5 @@
+"use client"
+
 import { Badge } from "@/components/ui/badge";
 import { useIntl } from "react-intl";
 import { JobStatus } from "./types";

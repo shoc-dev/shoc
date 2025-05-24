@@ -14,7 +14,12 @@ export const getByLocalId = defineServerAction(({ workspaceId, localId }) => {
     return authenticatedUser(token => clientGuard(() => shocClient(WorkspaceJobsClient).getByLocalId(token, workspaceId, localId)));
 });
 
+export const getPermissionsByLocalId = defineServerAction(({ workspaceId, localId }) => {
+    return authenticatedUser(token => clientGuard(() => shocClient(WorkspaceJobsClient).getPermissionsByLocalId(token, workspaceId, localId)));
+});
+
 export const serverActions = {
     'job/workspace-jobs/getBy': getBy,
-    'job/workspace-jobs/getByLocalId': getByLocalId
+    'job/workspace-jobs/getByLocalId': getByLocalId,
+    'job/workspace-jobs/getPermissionsByLocalId': getPermissionsByLocalId
 }

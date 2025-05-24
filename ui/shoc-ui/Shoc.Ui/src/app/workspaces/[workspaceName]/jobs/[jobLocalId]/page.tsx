@@ -2,14 +2,13 @@ import getIntl from "@/i18n/get-intl";
 import { Metadata } from "next";
 import ErrorScreen from "@/components/error/error-screen";
 import { getByName } from "../../cached-workspace-actions";
-import { getClusterByName } from "../cached-cluster-actions";
 import WorkspacePageWrapper from "../../_components/workspace-page-wrapper";
 import WorkspacePageHeader from "@/components/general/workspace-page-header";
 import WorkspacePageBreadcrumbs from "@/components/general/workspace-page-breadcrumbs";
 import { BreadcrumbLink } from "@/components/ui/breadcrumb";
-import SingleClusterClientPage from "./_components/single-cluster-client-page";
-import React from "react";
-import ClusterConnectivityBadge from "./_components/cluster-connectivity-badge";
+import { getJobByLocalId } from "../cached-job-actions";
+import JobStatusBadge from "../_components/job-status-badge";
+import SingleJobClientPage from "./_components/single-job-client-page";
 
 export const dynamic = 'force-dynamic';
 
@@ -17,24 +16,25 @@ export async function generateMetadata(props: { params: Promise<any> }): Promise
   const params = await props.params;
 
   const {
-    clusterName
+    workspaceName,
+    jobLocalId
   } = params;
 
   const intl = await getIntl();
-  const defaultTitle = intl.formatMessage({ id: 'clusters' });
-  const title = clusterName ? `${clusterName} - ${intl.formatMessage({ id: 'clusters' })}` : defaultTitle;
+  const defaultTitle = intl.formatMessage({ id: 'jobs' });
+  const title = jobLocalId ? `${intl.formatMessage({ id: 'jobs.job' })} ${jobLocalId} - ${workspaceName}` : defaultTitle;
 
   return {
     title
   }
 }
 
-export default async function WorkspaceClustersPage(props: any) {
+export default async function WorkspaceJobPage(props: any) {
   const params = await props.params;
 
   const {
     workspaceName,
-    clusterName
+    jobLocalId
   } = params;
 
   const intl = await getIntl();
@@ -44,23 +44,21 @@ export default async function WorkspaceClustersPage(props: any) {
     return <ErrorScreen errors={workspaceErrors} />
   }
 
-  const { data: cluster, errors: clusterErrors } = await getClusterByName(workspace.id, clusterName);
+  const { data: job, errors: jobErrors } = await getJobByLocalId(workspace.id, jobLocalId);
 
-  if (clusterErrors) {
-    return <ErrorScreen errors={clusterErrors} />
+  if (jobErrors) {
+    return <ErrorScreen errors={jobErrors} />
   }
 
   return <WorkspacePageWrapper header={
     <WorkspacePageHeader breadcrumb={
       <WorkspacePageBreadcrumbs crumbs={[
-        <BreadcrumbLink key="clusters" href={`/workspaces/${cluster.workspaceName}/clusters`}>{intl.formatMessage({ id: 'workspaces.sidebar.clusters' })}</BreadcrumbLink>
+        <BreadcrumbLink key="jobs" href={`/workspaces/${job.workspaceName}/jobs`}>{intl.formatMessage({ id: 'jobs' })}</BreadcrumbLink>
       ]}
-        title={cluster.name} titleAddon={<div className="flex flex-row space-x-2 items-center justify-center">
-          <ClusterConnectivityBadge />
-          </div>} />
+        title={`${jobLocalId}`} />
     }
     />
   }>
-      <SingleClusterClientPage />
+    <SingleJobClientPage />
   </WorkspacePageWrapper>
 }

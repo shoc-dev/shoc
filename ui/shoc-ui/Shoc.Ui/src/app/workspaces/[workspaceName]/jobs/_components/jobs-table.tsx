@@ -41,15 +41,21 @@ export default function JobsTable({ items, workspaceName, className }: { items: 
         <TableBody>
             {items.map((item: Job) => (
                 <TableRow key={item.id}>
-                    <TableCell>{item.localId}</TableCell>
+                    <TableCell>
+                        <Link prefetch={false} href={`/workspaces/${workspaceName}/jobs/${item.localId}`}>
+                            {item.localId}
+                        </Link>
+                    </TableCell>
                     <TableCell className="font-medium">
-                        {item.name ? <span className="overflow-hidden truncate" title={item.name}>
-                            {item.name}
-                        </span> :
-                            <span className="italic">
-                                {intl.formatMessage({ id: 'jobs.labels.untitled' })}
-                            </span>
-                        }
+                        <Link prefetch={false} href={`/workspaces/${workspaceName}/jobs/${item.localId}`}>
+                            {item.name ? <span className="overflow-hidden truncate" title={item.name}>
+                                {item.name}
+                            </span> :
+                                <span className="italic">
+                                    {intl.formatMessage({ id: 'jobs.labels.untitled' })}
+                                </span>
+                            }
+                        </Link>
                     </TableCell>
                     <TableCell className="font-medium">
                         {item.description ? <span className="overflow-hidden truncate" title={item.description}>
@@ -67,12 +73,12 @@ export default function JobsTable({ items, workspaceName, className }: { items: 
                         <JobStatusBadge status={item.status} />
                     </TableCell>
                     <TableCell className="font-medium">
-                        <Badge variant="outline">{intl.formatMessage({id: `jobs.scopes.${item.scope}`})}</Badge>
+                        <Badge variant="outline">{intl.formatMessage({ id: `jobs.scopes.${item.scope}` })}</Badge>
                     </TableCell>
                     <TableCell className="font-medium">
-                            <Link prefetch={false} className="underline" target="_blank" href={`/workspaces/${workspaceName}/clusters/${item.clusterName}`}>
-                                 {item.clusterName}
-                            </Link>
+                        <Link prefetch={false} className="underline" target="_blank" href={`/workspaces/${workspaceName}/clusters/${item.clusterName}`}>
+                            {item.clusterName}
+                        </Link>
                     </TableCell>
                     <TableCell className="font-medium">
                         <span>
@@ -80,10 +86,10 @@ export default function JobsTable({ items, workspaceName, className }: { items: 
                         </span>
                     </TableCell>
                     <TableCell className="font-medium">
-                        { durationBetween(item.created, item.runningAt) }
+                        {durationBetween(item.created, item.runningAt)}
                     </TableCell>
                     <TableCell className="font-medium">
-                        { item.runningAt ? durationBetween(item.runningAt, item.completedAt) : "N/A" }
+                        {item.runningAt ? durationBetween(item.runningAt, item.completedAt) : "N/A"}
                     </TableCell>
                     <TableCell className="text-right">
                         <DropdownMenu modal={false}>

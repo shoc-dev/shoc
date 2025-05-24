@@ -12,9 +12,9 @@ export default class WorkspaceJobsClient extends BaseAxiosClient {
   getBy(token, workspaceId, filter) {
     const url = this.urlify({
       api: `api/workspaces/${workspaceId}/jobs`,
-      query: {...filter}
+      query: { ...filter }
     });
-    
+
     return this.webClient.get(url, {
       headers: {
         ...this.authBearer(token)
@@ -26,11 +26,24 @@ export default class WorkspaceJobsClient extends BaseAxiosClient {
     const url = this.urlify({
       api: `api/workspaces/${workspaceId}/jobs/by-local-id/${localId}`
     });
-    
+
     return this.webClient.get(url, {
       headers: {
         ...this.authBearer(token)
       }
     });
   }
+
+  getPermissionsByLocalId(token, workspaceId, localId) {
+    const url = this.urlify({
+      api: `api/workspaces/${workspaceId}/jobs/by-local-id/${localId}/permissions`
+    });
+
+    return this.webClient.get(url, {
+      headers: {
+        ...this.authBearer(token)
+      }
+    });
+  }
+  
 }
