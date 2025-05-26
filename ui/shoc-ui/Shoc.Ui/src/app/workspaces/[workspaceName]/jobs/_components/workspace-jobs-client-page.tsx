@@ -9,9 +9,9 @@ import JobsTable from "./jobs-table";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import LoadingContainer from "@/components/general/loading-container";
-import { FilterOptions, JobScope, JobStatus } from "./types";
 import ScopeSelector from "./scope-selector";
 import StatusSelector from "./status-selector";
+import { FilterOptions, JobScope, JobStatus } from "@/domain/job";
 
 const DEFAULT_PAGE_SIZE = 10;
 

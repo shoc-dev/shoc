@@ -1,5 +1,5 @@
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { JobStatus } from "./types";
+import { JobStatus } from "@/domain/job";
 import { useIntl } from "react-intl";
 
 const options: JobStatus[] = [

@@ -1,5 +1,5 @@
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { JobScope } from "./types";
+import { JobScope } from "@/domain/job";
 import { IntlMessageId } from "@/i18n/sources";
 import { useIntl } from "react-intl";
 

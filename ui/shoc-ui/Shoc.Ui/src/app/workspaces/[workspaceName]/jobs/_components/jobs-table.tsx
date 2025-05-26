@@ -11,12 +11,12 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { MoreHorizontal, Play } from "lucide-react"
 import { useIntl } from "react-intl"
-import { Job } from "./types"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import JobStatusBadge from "./job-status-badge"
 import { durationBetween } from "@/extended/format"
 import { Badge } from "@/components/ui/badge"
+import { JobValueType } from "@/domain/job"
 
 export default function JobsTable({ items, workspaceName, className }: { items: any, workspaceName: string, className?: string }) {
 
@@ -39,7 +39,7 @@ export default function JobsTable({ items, workspaceName, className }: { items: 
             </TableRow>
         </TableHeader>
         <TableBody>
-            {items.map((item: Job) => (
+            {items.map((item: JobValueType) => (
                 <TableRow key={item.id}>
                     <TableCell>
                         <Link prefetch={false} href={`/workspaces/${workspaceName}/jobs/${item.localId}`}>

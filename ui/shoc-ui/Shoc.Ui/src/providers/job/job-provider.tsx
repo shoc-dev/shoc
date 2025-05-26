@@ -1,8 +1,9 @@
 "use client"
 
 import { useCallback, useMemo, useState } from "react";
-import JobContext, { JobValueType } from "./job-context";
+import JobContext from "./job-context";
 import { rpc } from "@/server-actions/rpc";
+import { JobValueType } from "@/domain/job";
 
 const mapper = (value: any): JobValueType => {
     return {
@@ -28,7 +29,7 @@ export default function JobProvider({ children, initialValue }: { children: Reac
 
         setProgress(false);
 
-    }, [initialValue.workspaceId, initialValue.name])
+    }, [initialValue.workspaceId, initialValue.localId])
 
     const initialValueMapped = useMemo(() => mapper(initialValue), [initialValue]);
     const valueMapped = useMemo(() => mapper(result.data ?? initialValue), [result.data, initialValue])

@@ -41,7 +41,6 @@ export default async function SingleClusterLayoutLayout(props: { children: React
         <ClusterConnectivityProvider initialValue={connectivity.data}>
             <ClusterAccessProvider permissions={permissions.data || []}>
                 <ClusterNodesProvider>
-            
                     {children}
                 </ClusterNodesProvider>
             </ClusterAccessProvider>

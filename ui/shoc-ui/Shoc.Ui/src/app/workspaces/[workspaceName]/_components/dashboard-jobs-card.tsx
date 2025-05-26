@@ -23,7 +23,6 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import { useIntl } from "react-intl"
-import { FilterOptions, Job } from "../jobs/_components/types"
 import JobStatusBadge from "../jobs/_components/job-status-badge"
 import { useSession } from "next-auth/react"
 import { useCallback, useEffect, useMemo, useState } from "react"
@@ -34,6 +33,7 @@ import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { durationBetween } from "@/extended/format"
 import LoadingContainer from "@/components/general/loading-container"
+import { FilterOptions, JobValueType } from "@/domain/job"
 
 
 export default function DashboardJobsCard() {
@@ -51,7 +51,7 @@ export default function DashboardJobsCard() {
         size: 10
     }), [userId]);
 
-    const columns: ColumnDef<Job>[] = useMemo(() => [
+    const columns: ColumnDef<JobValueType>[] = useMemo(() => [
         {
             accessorKey: "localId",
             header: "#",
