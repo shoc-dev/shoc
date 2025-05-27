@@ -36,6 +36,11 @@ export default function JobExecutionSummaryCard() {
             <span className="text-md font-semibold xl:text-xl">{job?.runningAt ? durationBetween(job.runningAt, job.completedAt) : 'N/A'}
             </span>
           </div>
+          <div className="border-l pl-2 flex flex-col justify-center text-left">
+            <span className="text-xs text-muted-foreground">{intl.formatMessage({ id: 'jobs.labels.overall' })}</span>
+            <span className="text-md font-semibold xl:text-xl">{job ? durationBetween(job.created, job.completedAt) : 'N/A'}
+            </span>
+          </div>
         </div>
       </CardContent>
     </Card>

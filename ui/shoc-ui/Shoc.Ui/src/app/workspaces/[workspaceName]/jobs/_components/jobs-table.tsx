@@ -17,13 +17,14 @@ import { durationBetween } from "@/extended/format"
 import { Badge } from "@/components/ui/badge"
 import { JobValueType } from "@/domain/job"
 import { useRouter } from "next/navigation"
+import { cn } from "@/lib/utils"
 
 export default function JobsTable({ items, workspaceName, className }: { items: any, workspaceName: string, className?: string }) {
 
     const intl = useIntl();
     const router = useRouter();
 
-    return <Table className={`${className} table-auto`}>
+    return <table className={cn("table-auto caption-bottom text-sm", className)} data-slot="table">
         <TableHeader>
             <TableRow>
                 <TableHead className="w-6">#</TableHead>
@@ -111,5 +112,5 @@ export default function JobsTable({ items, workspaceName, className }: { items: 
                 </TableRow>
             ))}
         </TableBody>
-    </Table>
+    </table>
 }

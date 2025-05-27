@@ -35,7 +35,6 @@ import { durationBetween } from "@/extended/format"
 import LoadingContainer from "@/components/general/loading-container"
 import { FilterOptions, JobValueType } from "@/domain/job"
 
-
 export default function DashboardJobsCard() {
     const intl = useIntl();
     const session = useSession();

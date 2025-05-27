@@ -4,9 +4,8 @@ import { getJobByLocalId, getJobPermissionsByLocalId } from "../cached-job-actio
 import ErrorScreen from "@/components/error/error-screen";
 import JobProvider from "@/providers/job/job-provider";
 import JobAccessProvider from "@/providers/job-access/job-access-provider";
-import JobTasksProvider from "./_providers/job-tasks/job-tasks-provider";
 
-export default async function SingleJobLayoutLayout(props: { children: ReactNode, params: Promise<any> }) {
+export default async function SingleJobTaskLayout(props: { children: ReactNode, params: Promise<any> }) {
     const params = await props.params;
 
     const {
@@ -32,9 +31,7 @@ export default async function SingleJobLayoutLayout(props: { children: ReactNode
 
     return <JobProvider initialValue={job.data}>
         <JobAccessProvider permissions={permissions.data || []}>
-            <JobTasksProvider>
                 {children}
-            </JobTasksProvider>
         </JobAccessProvider>
     </JobProvider>
 }

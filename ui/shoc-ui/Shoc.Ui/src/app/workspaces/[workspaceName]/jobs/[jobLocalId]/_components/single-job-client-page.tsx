@@ -1,6 +1,5 @@
 "use client"
 
-import LoadingContainer from "@/components/general/loading-container";
 import useJob from "@/providers/job/use-job"
 import useWorkspace from "@/providers/workspace/use-workspace";
 import { useIntl } from "react-intl";
@@ -48,8 +47,8 @@ export default function SingleJobClientPage() {
             </div>
         </div>
         <div className="flex flex-col space-y-4">
-                <JobProgressAlert />
-              </div>
+            <JobProgressAlert />
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-4">
             <JobMetadataCard />
             <JobExecutionSummaryCard />
@@ -60,12 +59,9 @@ export default function SingleJobClientPage() {
 
         <div className="flex flex-col space-y-2">
             <h4 className="flex flex-row items-center scroll-m-20 text-lg font-medium tracking-tight">
-                <FolderCheck className="w-5 mr-2" /> {intl.formatMessage({id: 'jobs.labels.tasks'})}
+                <FolderCheck className="w-5 mr-2" /> {intl.formatMessage({ id: 'jobs.labels.tasks' })}
             </h4>
             <JobTasksTable />
         </div>
     </div>
-
-
-
 }

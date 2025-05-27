@@ -20,7 +20,7 @@ export default function ClusterCardList({ workspaceName, items, progress }: { wo
     }, [page, items])
 
     return <>
-        <div className="flex flex-wrap gap-4 h-min w-full py-4">
+        <div className="flex gap-4 h-min w-full py-4">
             {!progress && current.map((item: any) => <ClusterCard key={item.id} workspaceName={workspaceName} className="w-full lg:w-[calc(50%-1rem)] xl:w-[calc(33%-1rem)] 2xl:w-[calc(25%-1rem)]" cluster={item} />)}
             {progress && Array.from(Array(SKELETON_PAGE_SIZE).keys()).map(idx => <ClusterSkeletonCard className="w-full lg:w-[calc(50%-1rem)] xl:w-[calc(33%-1rem)] 2xl:w-[calc(25%-1rem)]" key={idx} />)}
         </div>

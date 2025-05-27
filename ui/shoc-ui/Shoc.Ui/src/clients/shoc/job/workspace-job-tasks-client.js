@@ -22,6 +22,19 @@ export default class WorkspaceJobTasksClient extends BaseAxiosClient {
     });
   }
 
+  getBySequence(token, workspaceId, jobId, sequence){
+
+    const url = this.urlify({
+      api: `api/workspaces/${workspaceId}/jobs/${jobId}/tasks/by-sequence/${sequence}`
+    });
+
+    return this.webClient.get(url, {
+      headers: {
+        ...this.authBearer(token)
+      }
+    });
+  }
+
   getLogsBySequenceUrl(token, workspaceId, jobId, sequence){
 
     const url = this.urlify({

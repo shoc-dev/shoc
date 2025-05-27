@@ -1,15 +1,15 @@
 import getIntl from "@/i18n/get-intl";
 import { Metadata } from "next";
 import ErrorScreen from "@/components/error/error-screen";
-import { getByName } from "../../cached-workspace-actions";
-import WorkspacePageWrapper from "../../_components/workspace-page-wrapper";
 import WorkspacePageHeader from "@/components/general/workspace-page-header";
 import WorkspacePageBreadcrumbs from "@/components/general/workspace-page-breadcrumbs";
 import { BreadcrumbLink } from "@/components/ui/breadcrumb";
-import { getJobByLocalId } from "../cached-job-actions";
-import JobStatusBadge from "../_components/job-status-badge";
-import SingleJobClientPage from "./_components/single-job-client-page";
-import JobTasksProvider from "./_providers/job-tasks/job-tasks-provider";
+import { getTaskBySequence } from "../cached-job-task-actions";
+import { getByName } from "@/app/workspaces/[workspaceName]/cached-workspace-actions";
+import { getJobByLocalId } from "../../../cached-job-actions";
+import WorkspacePageWrapper from "@/app/workspaces/[workspaceName]/_components/workspace-page-wrapper";
+import SingleJobClientPage from "../../_components/single-job-client-page";
+import SingleTaskClientPage from "./_components/single-task-client-page";
 
 export const dynamic = 'force-dynamic';
 
@@ -18,12 +18,12 @@ export async function generateMetadata(props: { params: Promise<any> }): Promise
 
   const {
     workspaceName,
-    jobLocalId
+    jobLocalId,
+    sequence
   } = params;
 
   const intl = await getIntl();
-  const defaultTitle = intl.formatMessage({ id: 'jobs' });
-  const title = jobLocalId ? `${intl.formatMessage({ id: 'jobs.job' })} ${jobLocalId} - ${workspaceName}` : defaultTitle;
+  const title = `${intl.formatMessage({ id: 'jobs.task' })} ${sequence} - ${intl.formatMessage({ id: 'jobs.job' })} ${jobLocalId} - ${workspaceName}`;
 
   return {
     title
@@ -35,7 +35,8 @@ export default async function WorkspaceJobPage(props: any) {
 
   const {
     workspaceName,
-    jobLocalId
+    jobLocalId,
+    sequence
   } = params;
 
   const intl = await getIntl();
@@ -51,18 +52,27 @@ export default async function WorkspaceJobPage(props: any) {
     return <ErrorScreen errors={jobErrors} />
   }
 
+  const { data: task, errors: taskErrors } = await getTaskBySequence(workspace.id, job.id, sequence);
+
+  if (taskErrors) {
+    return <ErrorScreen errors={taskErrors} />
+  }
+
   return <WorkspacePageWrapper header={
     <WorkspacePageHeader breadcrumb={
       <WorkspacePageBreadcrumbs crumbs={[
-        <BreadcrumbLink key="jobs" href={`/workspaces/${job.workspaceName}/jobs`}>{intl.formatMessage({ id: 'jobs' })}</BreadcrumbLink>
+        <BreadcrumbLink key="jobs" href={`/workspaces/${job.workspaceName}/jobs`}>
+          {intl.formatMessage({ id: 'jobs' })}
+        </BreadcrumbLink>,
+        <BreadcrumbLink key="job" href={`/workspaces/${job.workspaceName}/jobs/${jobLocalId}`}>
+          {intl.formatMessage({id: 'jobs.job'})} {jobLocalId}
+        </BreadcrumbLink>
       ]}
-        title={`${intl.formatMessage({ id: 'jobs.job' })} ${jobLocalId}`} />
+        title={`${intl.formatMessage({id: 'jobs.task'})} ${sequence}`} />
     }
     />
   }>
-    <JobTasksProvider>
-      <SingleJobClientPage />
-    </JobTasksProvider>
+      <SingleTaskClientPage />
 
   </WorkspacePageWrapper>
 }

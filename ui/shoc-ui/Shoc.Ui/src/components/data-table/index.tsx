@@ -94,8 +94,8 @@ export default function DataTable<TData, TValue>({
 
       <div className={cn("space-y-4", className)}>
         {toolbar && toolbar(table)}
-        <div className={cn("rounded-md border")}>
-          <Table>
+        <div className={cn("rounded-md border w-full overflow-x-auto")}>
+          <table className={cn("w-full caption-bottom text-sm")}>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
@@ -155,7 +155,7 @@ export default function DataTable<TData, TValue>({
 
               )}
             </TableBody>
-          </Table>
+          </table>
         </div>
         {!hasErrors && <DataTablePagination table={table} />}
       </div>

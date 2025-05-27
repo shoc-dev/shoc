@@ -40,6 +40,7 @@
     "jobs.labels.completedTasks": "Completed",
     "jobs.labels.scope": "Scope",
     "jobs.labels.waiting": "Waiting",
+    "jobs.labels.overall": "Overall",
     "jobs.labels.running": "Running",
     "jobs.labels.package": "Package",
     "jobs.labels.template": "Template",
@@ -53,6 +54,8 @@
     "jobs.tasks.summary.description": "The completion state of the tasks",
     "jobs.details.title": "Job details",
     "jobs.details.description": "General information about the job",
+    "jobs.tasks": "Tasks",
+    "jobs.task": "Task",
     "jobs.task.types.function": "Function",
     "jobs.task.types.mpi": "MPI"
 }

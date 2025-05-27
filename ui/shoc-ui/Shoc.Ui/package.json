@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 11050",
+    "dev": "next dev -p 11050 --turbo",
     "dev:https": "next dev -p 11051 --experimental-https",
     "build": "next build",
     "pre-build": "node scripts/pre-build.js",
