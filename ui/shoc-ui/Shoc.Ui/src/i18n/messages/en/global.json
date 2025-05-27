@@ -36,6 +36,8 @@
     "global.labels.updated": "Updated At",
     "global.labels.expiration": "Expires At",
     "global.labels.actions": "Actions",
+    "global.labels.details": "Details",
+    "global.labels.message": "Message",
     "global.filters.all": "All",
     "global.messages.sure": "Are you sure?",
     "global.messages.noUndoneNotice": "This action cannot be undone.",

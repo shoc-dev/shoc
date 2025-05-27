@@ -4,19 +4,23 @@ import DataTable from "@/components/data-table"
 import { type ColumnDef } from "@tanstack/react-table"
 import DataTableColumnHeader from "@/components/data-table/data-table-column-header"
 import { useIntl } from "react-intl"
-import { localDate } from "@/extended/format"
+import { durationBetween, localDate } from "@/extended/format"
 import { MoreHorizontal } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { useMemo } from "react"
 import { JobTaskValueType } from "@/domain/job"
 import useJobTasks from "../_providers/job-tasks/use-job-tasks"
 import Link from "next/link"
 import JobTaskStatusBadge from "./job-task-status-badge"
+import useJob from "@/providers/job/use-job"
+import { useRouter } from "next/navigation"
 
 export default function JobTasksTable({ className }: { className?: string }) {
 
   const intl = useIntl();
+  const router = useRouter();
+  const { value: job } = useJob()
   const { value: tasks, loading, errors } = useJobTasks()
 
   const columns: ColumnDef<JobTaskValueType>[] = useMemo(() => [
@@ -25,7 +29,27 @@ export default function JobTasksTable({ className }: { className?: string }) {
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="#" />
       ),
-      cell: ({ row }) => <div>{row.getValue("sequence")}</div>,
+      cell: ({ row }) => <Link prefetch={false} className="underline" href={`/workspaces/${row.original.workspaceName}/jobs/${job.localId}/tasks/${row.original.sequence}`}>
+        {intl.formatMessage({id: 'jobs.labels.task'})} {row.getValue("sequence")}
+        </Link>,
+      enableSorting: true,
+      enableHiding: false,
+    },
+    {
+      accessorKey: "type",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={intl.formatMessage({id: 'global.labels.type'})} />
+      ),
+      cell: ({ row }) => intl.formatMessage({id: `jobs.task.types.${row.original.type}`}),
+      enableSorting: true,
+      enableHiding: false,
+    },
+    {
+      accessorKey: "packageTemplateReference",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={intl.formatMessage({id: 'jobs.labels.template'})} />
+      ),
+      cell: ({ row }) => row.original.packageTemplateReference,
       enableSorting: true,
       enableHiding: false,
     },
@@ -35,7 +59,7 @@ export default function JobTasksTable({ className }: { className?: string }) {
         <DataTableColumnHeader column={column} title={intl.formatMessage({id: 'global.labels.status'})} />
       ),
       cell: ({ row }) => <JobTaskStatusBadge status={row.original.status} />,
-      enableSorting: true,
+      enableSorting: false,
       enableHiding: false,
     },
     {
@@ -59,6 +83,24 @@ export default function JobTasksTable({ className }: { className?: string }) {
       enableHiding: false,
     },
     {
+      accessorKey: "waiting",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={intl.formatMessage({ id: 'jobs.labels.waiting' })} />
+      ),
+      cell: ({ row }) => durationBetween(row.original.created, row.original.runningAt),
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: "running",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={intl.formatMessage({ id: 'jobs.labels.running' })} />
+      ),
+      cell: ({ row }) => row.original.runningAt ? durationBetween(row.original.runningAt, row.original.completedAt) : "N/A",
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
       id: "actions",
       enableHiding: false,
       enableSorting: false,
@@ -75,13 +117,16 @@ export default function JobTasksTable({ className }: { className?: string }) {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>{intl.formatMessage({ id: 'global.labels.actions' })}</DropdownMenuLabel>
+              <DropdownMenuItem onClick={() => router.push(`/workspaces/${row.original.workspaceName}/jobs/${job.localId}/tasks/${row.original.sequence}`)}>
+                {intl.formatMessage({ id: 'global.labels.details' })}
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </>
         )
       }
     }
-  ], [intl])
+  ], [intl, router, job.localId])
 
   const data = useMemo(() => tasks ?? [], [tasks]);
 
@@ -93,6 +138,7 @@ export default function JobTasksTable({ className }: { className?: string }) {
         columns={columns}
         progress={loading}
         errors={errors}
+        defaultPagination={{ pageIndex: 0, pageSize: 50 }}
       />
     </>
   )

@@ -10,6 +10,9 @@ import JobExecutionSummaryCard from "./job-execution-summary-card";
 import JobMetadataCard from "./job-metadata-card";
 import JobActionsDropdown, { JobActionTypes } from "./job-actions-dropdown";
 import JobTasksTable from "./job-tasks-table";
+import { FolderCheck } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import JobProgressAlert from "./job-progress-alert";
 
 export default function SingleJobClientPage() {
 
@@ -44,13 +47,21 @@ export default function SingleJobClientPage() {
                 <JobActionsDropdown disabled={loading} onSelect={onActionSelected} />
             </div>
         </div>
+        <div className="flex flex-col space-y-4">
+                <JobProgressAlert />
+              </div>
         <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-4">
             <JobMetadataCard />
             <JobExecutionSummaryCard />
             <JobTasksSummaryCard />
         </div>
 
-        <div>
+        <Separator orientation='horizontal' />
+
+        <div className="flex flex-col space-y-2">
+            <h4 className="flex flex-row items-center scroll-m-20 text-lg font-medium tracking-tight">
+                <FolderCheck className="w-5 mr-2" /> {intl.formatMessage({id: 'jobs.labels.tasks'})}
+            </h4>
             <JobTasksTable />
         </div>
     </div>

@@ -42,7 +42,6 @@ export type JobTaskStatus = 'created' | 'pending' | 'running' | 'succeeded' | 'f
 
 export type JobTaskType = 'function' | 'mpi';
 
-
 export type JobTaskValueType = {
     id: string,
     workspaceId: string,

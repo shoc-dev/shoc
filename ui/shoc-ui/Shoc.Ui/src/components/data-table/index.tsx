@@ -4,6 +4,7 @@ import * as React from "react"
 import {
   ColumnDef,
   ColumnFiltersState,
+  PaginationState,
   SortingState,
   Table as TableType,
   VisibilityState,
@@ -35,7 +36,13 @@ interface DataTableProps<TData, TValue> {
   className?: string,
   progress?: boolean,
   errors?: any[],
+  defaultPagination?: PaginationState,
   toolbar?: (table: TableType<TData>) => React.ReactNode
+}
+
+const DEFAULT_PAGINATION = {
+  pageIndex: 0,
+  pageSize: 20
 }
 
 export default function DataTable<TData, TValue>({
@@ -44,6 +51,7 @@ export default function DataTable<TData, TValue>({
   className,
   progress = false,
   errors = [],
+  defaultPagination = DEFAULT_PAGINATION,
   toolbar
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([])
@@ -53,6 +61,7 @@ export default function DataTable<TData, TValue>({
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
+  const [pagination, setPagination] = React.useState<PaginationState>({...DEFAULT_PAGINATION, ...defaultPagination})
 
   const hasErrors = errors && errors.length > 0;
 
@@ -64,12 +73,14 @@ export default function DataTable<TData, TValue>({
       columnVisibility,
       rowSelection,
       columnFilters,
+      pagination: pagination
     },
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
+    onPaginationChange: setPagination,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),

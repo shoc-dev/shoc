@@ -5,11 +5,10 @@ import {
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuLabel,
-    DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { MoreHorizontal, Play } from "lucide-react"
+import { MoreHorizontal } from "lucide-react"
 import { useIntl } from "react-intl"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
@@ -17,10 +16,12 @@ import JobStatusBadge from "./job-status-badge"
 import { durationBetween } from "@/extended/format"
 import { Badge } from "@/components/ui/badge"
 import { JobValueType } from "@/domain/job"
+import { useRouter } from "next/navigation"
 
 export default function JobsTable({ items, workspaceName, className }: { items: any, workspaceName: string, className?: string }) {
 
     const intl = useIntl();
+    const router = useRouter();
 
     return <Table className={`${className} table-auto`}>
         <TableHeader>
@@ -42,12 +43,12 @@ export default function JobsTable({ items, workspaceName, className }: { items: 
             {items.map((item: JobValueType) => (
                 <TableRow key={item.id}>
                     <TableCell>
-                        <Link prefetch={false} href={`/workspaces/${workspaceName}/jobs/${item.localId}`}>
+                        <Link prefetch={false} className="underline" href={`/workspaces/${workspaceName}/jobs/${item.localId}`}>
                             {item.localId}
                         </Link>
                     </TableCell>
                     <TableCell className="font-medium">
-                        <Link prefetch={false} href={`/workspaces/${workspaceName}/jobs/${item.localId}`}>
+                        <Link prefetch={false} className="underline" href={`/workspaces/${workspaceName}/jobs/${item.localId}`}>
                             {item.name ? <span className="overflow-hidden truncate" title={item.name}>
                                 {item.name}
                             </span> :
@@ -100,15 +101,10 @@ export default function JobsTable({ items, workspaceName, className }: { items: 
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                <DropdownMenuItem>View details</DropdownMenuItem>
-                                <DropdownMenuItem>View logs</DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem>
-                                    <Play className="mr-2 h-4 w-4" />
-                                    Re-run workflow
+                                <DropdownMenuLabel>{intl.formatMessage({ id: 'global.labels.actions' })}</DropdownMenuLabel>
+                                <DropdownMenuItem onClick={() => router.push(`/workspaces/${workspaceName}/jobs/${item.localId}`)}>
+                                    {intl.formatMessage({ id: 'global.actions.more' })}
                                 </DropdownMenuItem>
-                                <DropdownMenuItem>Download artifacts</DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </TableCell>

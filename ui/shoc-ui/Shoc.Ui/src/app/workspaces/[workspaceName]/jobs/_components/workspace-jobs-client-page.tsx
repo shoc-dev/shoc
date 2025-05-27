@@ -76,7 +76,7 @@ export default function WorkspaceJobsClientPage({ workspaceId, workspaceName }: 
             {(!data || data.totalCount > 0) &&
                 <div className="flex flex-col">
                     <JobsTable className="mt-4" workspaceName={workspaceName} items={data?.items || []} />
-                    {data && data.totalCount > filter.size && <div className="flex mx-auto space-x-2">
+                    {data && data.totalCount > filter.size && <div className="flex mt-2 ml-auto space-x-2">
                         <Button variant="outline" disabled={filter.page === 0} onClick={() => setFilter((prev: any) => ({
                             ...prev,
                             page: prev.page - 1
