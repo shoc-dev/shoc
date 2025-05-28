@@ -23,7 +23,7 @@ export async function generateMetadata(props: { params: Promise<any> }): Promise
   } = params;
 
   const intl = await getIntl();
-  const title = `${intl.formatMessage({ id: 'jobs.task' })} ${sequence} - ${intl.formatMessage({ id: 'jobs.job' })} ${jobLocalId} - ${workspaceName}`;
+  const title = `${intl.formatMessage({ id: 'jobs.tasks.task' })} ${sequence} - ${intl.formatMessage({ id: 'jobs.job' })} ${jobLocalId} - ${workspaceName}`;
 
   return {
     title
@@ -68,7 +68,7 @@ export default async function WorkspaceJobPage(props: any) {
           {intl.formatMessage({id: 'jobs.job'})} {jobLocalId}
         </BreadcrumbLink>
       ]}
-        title={`${intl.formatMessage({id: 'jobs.task'})} ${sequence}`} />
+        title={`${intl.formatMessage({id: 'jobs.tasks.task'})} ${sequence}`} />
     }
     />
   }>

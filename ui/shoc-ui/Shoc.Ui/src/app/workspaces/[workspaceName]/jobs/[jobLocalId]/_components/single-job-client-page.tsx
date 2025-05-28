@@ -59,7 +59,7 @@ export default function SingleJobClientPage() {
 
         <div className="flex flex-col space-y-2">
             <h4 className="flex flex-row items-center scroll-m-20 text-lg font-medium tracking-tight">
-                <FolderCheck className="w-5 mr-2" /> {intl.formatMessage({ id: 'jobs.labels.tasks' })}
+                <FolderCheck className="w-5 mr-2" /> {intl.formatMessage({ id: 'jobs.tasks' })}
             </h4>
             <JobTasksTable />
         </div>

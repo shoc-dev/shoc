@@ -3,11 +3,11 @@ import { IntlMessageId } from "@/i18n/sources";
 export const jobTaskTypes: { key: string, display: IntlMessageId }[] = [ 
     {
         key: 'function', 
-        display: 'jobs.task.types.function'
+        display: 'jobs.tasks.types.function'
     },
     {
         key: 'mpi', 
-        display: 'jobs.task.types.mpi'
+        display: 'jobs.tasks.types.mpi'
     }
 ]
 

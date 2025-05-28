@@ -3,14 +3,14 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { MoreHorizontal, RefreshCcw } from "lucide-react";
 import { useIntl } from "react-intl";
 
-export type JobActionTypes = 'refresh'
+export type JobTaskActionTypes = 'refresh'
 
-type JobActionsDropdownProps = {
+type JobTaskActionsDropdownProps = {
     disabled?: boolean
-    onSelect: (action: JobActionTypes) => void
+    onSelect: (action: JobTaskActionTypes) => void
 }
 
-export default function JobActionsDropdown({ onSelect, disabled }: JobActionsDropdownProps) {
+export default function JobTaskActionsDropdown({ onSelect, disabled }: JobTaskActionsDropdownProps) {
 
     const intl = useIntl();
 

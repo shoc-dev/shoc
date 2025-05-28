@@ -40,7 +40,7 @@ export default function JobTasksTable({ className }: { className?: string }) {
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title={intl.formatMessage({id: 'global.labels.type'})} />
       ),
-      cell: ({ row }) => intl.formatMessage({id: `jobs.task.types.${row.original.type}`}),
+      cell: ({ row }) => intl.formatMessage({id: `jobs.tasks.types.${row.original.type}`}),
       enableSorting: true,
       enableHiding: false,
     },
