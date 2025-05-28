@@ -49,9 +49,15 @@
     "jobs.filters.status.placeholder": "Select status",
     "jobs.filters.status.prefix": "Status:",
     "jobs.execution.summary.title": "Execution summary",
-    "jobs.execution.summary.description": "Monitors the execution time of the job",
+    "jobs.execution.summary.description": "Monitors the execution times of the job",
     "jobs.details.title": "Job details",
     "jobs.details.description": "General information about the job",
+    "jobs.resources.types.cpu": "CPU",
+    "jobs.resources.types.memory": "Memory",
+    "jobs.resources.types.nvidiaGpu": "Nvidia GPU",
+    "jobs.resources.types.amdGpu": "AMD GPU",
+    "jobs.logs": "Logs",
+    "jobs.logs.actions.view": "View logs",
     "jobs.tasks.summary.title": "Tasks summary",
     "jobs.tasks.summary.description": "The completion state of the tasks",
     "jobs.tasks": "Tasks",
@@ -69,5 +75,9 @@
     "jobs.tasks.statuses.running.alert.description": "The task is currently being executed on the cluster.",
     "jobs.tasks.statuses.succeeded.alert.description": "The task completed successfully without errors.",
     "jobs.tasks.statuses.failed.alert.description": "The task failed during execution. Check the error logs for details about what went wrong.",
-    "jobs.tasks.statuses.cancelled.alert.description": "The task was cancelled before completion. This may have been initiated manually or by the system."
+    "jobs.tasks.statuses.cancelled.alert.description": "The task was cancelled before completion. This may have been initiated manually or by the system.",
+    "jobs.tasks.execution.summary.title": "Execution summary",
+    "jobs.tasks.execution.summary.description": "Monitors the execution times of the task",
+    "jobs.tasks.resources.title": "Task resources",
+    "jobs.tasks.resources.description": "Resources allocated to the task execution"
 }

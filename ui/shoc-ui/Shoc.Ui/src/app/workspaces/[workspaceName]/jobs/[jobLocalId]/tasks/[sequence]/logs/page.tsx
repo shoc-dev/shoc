@@ -4,11 +4,11 @@ import ErrorScreen from "@/components/error/error-screen";
 import WorkspacePageHeader from "@/components/general/workspace-page-header";
 import WorkspacePageBreadcrumbs from "@/components/general/workspace-page-breadcrumbs";
 import { BreadcrumbLink } from "@/components/ui/breadcrumb";
-import { getTaskBySequence } from "../cached-job-task-actions";
 import { getByName } from "@/app/workspaces/[workspaceName]/cached-workspace-actions";
-import { getJobByLocalId } from "../../../cached-job-actions";
 import WorkspacePageWrapper from "@/app/workspaces/[workspaceName]/_components/workspace-page-wrapper";
-import SingleTaskClientPage from "./_components/single-task-client-page";
+import { getJobByLocalId } from "../../../../cached-job-actions";
+import { getTaskBySequence } from "../../cached-job-task-actions";
+import SingleTaskLogsClientPage from "./_components/single-task-logs-client-page";
 
 export const dynamic = 'force-dynamic';
 
@@ -17,12 +17,11 @@ export async function generateMetadata(props: { params: Promise<any> }): Promise
 
   const {
     workspaceName,
-    jobLocalId,
     sequence
   } = params;
 
   const intl = await getIntl();
-  const title = `${intl.formatMessage({ id: 'jobs.tasks.task' })} ${sequence} - ${intl.formatMessage({ id: 'jobs.job' })} ${jobLocalId} - ${workspaceName}`;
+  const title = `${intl.formatMessage({id: 'jobs.logs'})} - ${intl.formatMessage({ id: 'jobs.tasks.task' })} ${sequence} - ${workspaceName}`;
 
   return {
     title
@@ -65,13 +64,16 @@ export default async function WorkspaceJobPage(props: any) {
         </BreadcrumbLink>,
         <BreadcrumbLink key="job" href={`/workspaces/${job.workspaceName}/jobs/${jobLocalId}`}>
           {intl.formatMessage({id: 'jobs.job'})} {jobLocalId}
+        </BreadcrumbLink>,
+        <BreadcrumbLink key="task" href={`/workspaces/${job.workspaceName}/jobs/${jobLocalId}/tasks/${sequence}`}>
+          {intl.formatMessage({id: 'jobs.tasks.task'})} {sequence}
         </BreadcrumbLink>
       ]}
-        title={`${intl.formatMessage({id: 'jobs.tasks.task'})} ${sequence}`} />
+        title={intl.formatMessage({id: 'jobs.logs'})} />
     }
     />
   }>
-      <SingleTaskClientPage />
+      <SingleTaskLogsClientPage />
 
   </WorkspacePageWrapper>
 }
