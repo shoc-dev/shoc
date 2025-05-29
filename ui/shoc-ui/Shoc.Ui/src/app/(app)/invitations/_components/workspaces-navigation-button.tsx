@@ -9,7 +9,7 @@ export default function WorkspacesNavigationButton({ className }: { className?: 
     const intl = useIntl();
     const router = useRouter();
     return <Button variant="outline" className={className} onClick={() => router.push('/workspaces')}>
-        <ArrowLeftIcon className="w-4 h-4 mr-2" />
+        <ArrowLeftIcon />
         {intl.formatMessage({ id: 'workspaces' })}
     </Button>
 }

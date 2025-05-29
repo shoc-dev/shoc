@@ -9,9 +9,9 @@ import OrganizationIcon from "@/components/icons/organization-icon";
 import KeyIcon from "@/components/icons/key-icon";
 import { useState } from "react";
 import { Check, X } from "lucide-react";
-import { workspaceRolesMap, workspaceTypesMap } from "../../_components/well-known";
 import InvitationDeclineDialog from "./invitation-decline-dialog";
 import InvitationAcceptDialog from "./invitation-accept-dialog";
+import { workspaceRolesMap, workspaceTypesMap } from "@/well-known/workspace";
 
 export default function InvitationCard({ invitation, onAccepted = () => {}, onDeclined = () => {} }: any) {
     

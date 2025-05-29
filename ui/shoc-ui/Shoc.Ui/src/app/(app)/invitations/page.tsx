@@ -9,10 +9,10 @@ export async function generateMetadata(): Promise<Metadata> {
     const intl = await getIntl();
 
     return {
-      title: intl.formatMessage({id: 'workspaces'})
+      title: intl.formatMessage({id: 'workspaces.invitations'})
     }
   }
 
-export default async function WorkspacesPage() {
+export default async function InvitationsPage() {
     return <InvitationsClientPage />
 }

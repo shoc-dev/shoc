@@ -1,15 +1,14 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
-import WorkspaceAddDialogButton from "./workspace-add-dialog-button";
 import ErrorScreen from "@/components/error/error-screen";
 import { rpc } from "@/server-actions/rpc";
-import WorkspaceCardList from "./workspace-card-list";
 import { useIntl } from "react-intl";
 import BasicHeader from "@/components/general/basic-header";
-import InvitationsButton from "./invitations-button";
+import WorkspacesNavigationButton from "./workspaces-navigation-button";
+import InvitationsCardList from "./invitations-card-list";
 
-export default function WorkspacesClientPage() {
+export default function InvitationsClientPage() {
 
     const [progress, setProgress] = useState(true);
     const [items, setItems] = useState<any[]>([]);
@@ -20,7 +19,7 @@ export default function WorkspacesClientPage() {
 
         setProgress(true);
 
-        const { data, errors } = await rpc('workspace/user-workspaces/getAll', {})
+        const { data, errors } = await rpc('workspace/user-invitations/getAll', {})
 
         if (errors) {
             setErrors(errors);
@@ -42,14 +41,13 @@ export default function WorkspacesClientPage() {
         return <ErrorScreen errors={errors} />
     }
 
-    return <div className="flex mx-auto w-full lg:w-3/5 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
-        <BasicHeader 
-            title={intl.formatMessage({id: 'workspaces'})}
-            actions={[<div key="workspace-header-operations" className="flex space-x-1">
-                {items.length > 0 && <WorkspaceAddDialogButton key="add-workspace" disabled={progress} onSuccess={() => load()} />}
-                <InvitationsButton />
+    return <div className="flex w-full h-full flex-col gap-4 p-4 lg:gap-6 lg:p-6">
+        <BasicHeader
+            title={intl.formatMessage({ id: 'workspaces.invitations' })}
+            actions={[<div key="workspace-btn-actions">
+                {items.length > 0 && <WorkspacesNavigationButton key="workspaces-btn" />}
             </div>]}
         />
-        <WorkspaceCardList items={items} progress={progress} />            
+        <InvitationsCardList items={items} progress={progress} onUpdate={() => load()} />
     </div>
 }

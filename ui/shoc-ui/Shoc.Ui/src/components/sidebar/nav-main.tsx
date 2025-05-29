@@ -17,8 +17,10 @@ import { CollapsibleContent, CollapsibleTrigger } from "@radix-ui/react-collapsi
 import { ChevronRight } from "lucide-react"
 
 export default function NavMain({
+  title,
   items,
 }: {
+  title?: string,
   items: {
     title: string
     path: string
@@ -32,7 +34,7 @@ export default function NavMain({
 }) {
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Platform</SidebarGroupLabel>
+      {title && <SidebarGroupLabel>{title}</SidebarGroupLabel>}
       <SidebarMenu>
         {
           items.map((item) => (item.items || []).length === 0 ? <SidebarMenuItem key={item.path}>

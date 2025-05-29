@@ -12,6 +12,8 @@ import { useMemo } from "react";
 import Link from "next/link";
 import { localDateTime } from "@/extended/format";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Logs } from "lucide-react";
 
 export default function SingleTaskClientPage() {
 
@@ -96,6 +98,7 @@ export default function SingleTaskClientPage() {
 
             </div>
             <div className="space-x-2">
+                <Button variant="outline" onClick={() => onActionSelected('view_logs')}><Logs /> <span className="hidden md:flex">{intl.formatMessage({id: 'jobs.logs.actions.view'})}</span></Button>
                 <JobTaskActionsDropdown disabled={loading} onSelect={onActionSelected} />
             </div>
         </div>

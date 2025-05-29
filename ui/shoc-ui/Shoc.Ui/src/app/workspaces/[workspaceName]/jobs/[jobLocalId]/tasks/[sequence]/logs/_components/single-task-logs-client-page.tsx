@@ -6,11 +6,9 @@ import { useIntl } from "react-intl";
 import JobTaskStatusBadge from "../../../../_components/job-task-status-badge";
 import JobTaskLogsActionsDropdown, { JobTaskLogsActionTypes } from "./job-task-logs-actions-dropdown";
 import JobTaskProgressAlert from "../../_components/job-task-progress-alert";
-import { useRouter } from "next/navigation";
 import { Textarea } from "@/components/ui/textarea";
 import { useCallback, useEffect, useState } from "react";
 import ErrorDefinitions from "@/addons/error-handling/error-definitions";
-import ErrorAlert from "@/components/general/error-alert";
 import LoadingContainer from "@/components/general/loading-container";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
@@ -19,7 +17,6 @@ export default function SingleTaskLogsClientPage() {
     const intl = useIntl();
     const { value: task, loading: taskLoading } = useJobTask();
     const { loading: jobLoading } = useJob();
-    const router = useRouter();
     const [connecting, setConnecting] = useState(true);
     const [errors, setErrors] = useState<any[]>([]);
     const [logs, setLogs] = useState('');
@@ -28,7 +25,7 @@ export default function SingleTaskLogsClientPage() {
 
     const onActionSelected = async (action: JobTaskLogsActionTypes) => {
         if (action === 'refresh') {
-            router.refresh()
+            load()
         }
     }
 

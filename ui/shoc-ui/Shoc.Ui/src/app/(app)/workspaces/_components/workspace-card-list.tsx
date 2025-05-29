@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useIntl } from "react-intl";
 
-const DEFAULT_PAGE_SIZE = 4;
+const DEFAULT_SKELETON_PAGE_SIZE = 6;
+const DEFAULT_PAGE_SIZE = 12;
 
 export default function WorkspaceCardList({ progress, items = [] }: { progress?: boolean, items?: any[] }) {
 
@@ -20,14 +21,18 @@ export default function WorkspaceCardList({ progress, items = [] }: { progress?:
   }, [page, items])
 
   if (progress) {
-    return Array.from(Array(DEFAULT_PAGE_SIZE).keys()).map(idx => <WorkspaceSkeletonCard key={idx} />)
+    return <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 4 gap-4">
+      {Array.from(Array(DEFAULT_SKELETON_PAGE_SIZE).keys()).map(idx => <WorkspaceSkeletonCard key={idx} />)}
+    </div>
   }
   if (items.length === 0) {
     return <NoWorkspace />
   }
 
-  return <>
-    {current.map((item: any) => <WorkspaceCard key={item.id} workspace={item} />)}
+  return <div className="flex flex-col space-y-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 4 gap-4">
+      {current.map((item: any) => <WorkspaceCard key={item.id} workspace={item} />)}
+    </div>
     {items.length > DEFAULT_PAGE_SIZE && <div className="flex mx-auto space-x-2">
       <Button variant="outline" disabled={page === 0} onClick={() => setPage(prev => prev - 1)}>
         <ChevronLeft className="mr-2 w-4 h-4" />
@@ -38,6 +43,6 @@ export default function WorkspaceCardList({ progress, items = [] }: { progress?:
         <ChevronRight className="ml-2 w-4 h-4" />
       </Button>
     </div>}
-  </>
+  </div>
 
 }

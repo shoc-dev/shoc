@@ -23,7 +23,7 @@ import { useIntl } from "react-intl"
 import { useRouter } from "next/navigation"
 import useWorkspace from "@/providers/workspace/use-workspace"
 import UsersIcon from "../icons/users-icon"
-import { workspaceRolesMap } from "@/app/workspaces/(chooser)/_components/well-known"
+import { workspaceRolesMap } from "@/well-known/workspace"
 
 export default function WorkspaceSwitcher() {
   const { isMobile } = useSidebar()

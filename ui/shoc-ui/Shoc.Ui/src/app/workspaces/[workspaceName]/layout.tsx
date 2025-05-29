@@ -5,7 +5,7 @@ import WorkspaceAccessProvider from "@/providers/workspace-access/workspace-acce
 import { Metadata } from "next";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import WorkspaceProvider from "@/providers/workspace/workspace-provider";
-import WorkspaceSidebar from "@/components/sidebar/workspace-sidebar";
+import WorkspaceSidebar from "@/app/workspaces/[workspaceName]/_components/workspace-sidebar";
 
 export async function generateMetadata(props: { params: Promise<any> }): Promise<Metadata> {
     const params = await props.params;

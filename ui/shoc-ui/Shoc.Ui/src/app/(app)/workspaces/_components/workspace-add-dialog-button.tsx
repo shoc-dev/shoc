@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useIntl } from "react-intl"
 import { z } from "zod"
-import { workspaceNamePattern, workspaceTypes, workspaceTypesMap } from "./well-known"
+import { workspaceNamePattern, workspaceTypes, workspaceTypesMap } from "../../../../well-known/workspace"
 import ErrorAlert from "@/components/general/error-alert"
 import { useCallback, useState } from "react"
 import { useForm } from "react-hook-form"
@@ -33,7 +33,6 @@ export default function WorkspaceAddDialogButton({ className, disabled = false, 
   const [open, setOpen] = useState(false);
   const [errors, setErrors] = useState<any[]>([]);
   const [progress, setProgress] = useState(false);
-  const router = useRouter();
 
   const formSchema = z.object({
     name: z.string().regex(workspaceNamePattern, intl.formatMessage({ id: 'workspaces.validation.invalidName' })),
@@ -92,8 +91,10 @@ export default function WorkspaceAddDialogButton({ className, disabled = false, 
   return <Dialog open={open} onOpenChange={onOpenChangeWrapper} modal>
     <DialogTrigger asChild>
       <Button variant="outline" className={className} disabled={disabled}>
-        <PlusIcon className="w-4 h-4 mr-2" />
-        {intl.formatMessage({ id: 'workspaces.add' })}
+        <PlusIcon  />
+        <span className="hidden sm:flex">
+          {intl.formatMessage({ id: 'workspaces.add' })}
+        </span>
       </Button>
     </DialogTrigger>
     <DialogContent className="w-4/5 md:w-1/2">
@@ -141,7 +142,7 @@ export default function WorkspaceAddDialogButton({ className, disabled = false, 
                     <FormLabel>{intl.formatMessage({ id: 'workspaces.labels.type' })}</FormLabel>
                     <Select onValueChange={fieldNoRef.onChange} {...fieldNoRef}>
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full">
                           <SelectValue placeholder={intl.formatMessage({ id: 'workspaces.placeholders.type' })} />
                         </SelectTrigger>
                       </FormControl>

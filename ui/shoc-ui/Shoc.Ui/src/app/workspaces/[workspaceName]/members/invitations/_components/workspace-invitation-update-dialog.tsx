@@ -21,7 +21,7 @@ import SpinnerIcon from "@/components/icons/spinner-icon"
 import { rpc } from "@/server-actions/rpc"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ModalDialogProps } from "@/components/general/component-types"
-import { workspaceRoles, workspaceRolesMap } from "@/app/workspaces/(chooser)/_components/well-known"
+import { workspaceRoles, workspaceRolesMap } from "@/well-known/workspace"
 
 interface DialogProps extends ModalDialogProps {
   workspaceId: string,

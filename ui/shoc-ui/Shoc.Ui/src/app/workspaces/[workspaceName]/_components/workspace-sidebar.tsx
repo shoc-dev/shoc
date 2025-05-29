@@ -10,7 +10,7 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import useWorkspaceMenu from "@/app/workspaces/[workspaceName]/use-workspace-menu"
+import useWorkspaceMenu from "@/components/menu/use-workspace-menu"
 
 export default function WorkspaceSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   
