@@ -12,6 +12,9 @@ import JobTasksTable from "./job-tasks-table";
 import { FolderCheck } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import JobProgressAlert from "./job-progress-alert";
+import { localDateTime } from "@/extended/format";
+import Link from "next/link";
+import { useMemo } from "react";
 
 export default function SingleJobClientPage() {
 
@@ -27,6 +30,42 @@ export default function SingleJobClientPage() {
             await loadJob()
         }
     }
+
+    const details = useMemo(() => !job ? [] : [
+        {
+            name: intl.formatMessage({id: 'jobs.job'}),
+            value: <Link prefetch={false} className="underline" href={`/workspaces/${job.workspaceName}/jobs/${job.localId}`}>{job?.localId}</Link>
+        },
+        {
+            name: intl.formatMessage({id: 'jobs.labels.cluster'}),
+            value: <Link prefetch={false} className="underline" href={`/workspaces/${job.workspaceName}/clusters/${job.clusterName}`}>{job.clusterName}</Link>
+        },
+        {
+            name: intl.formatMessage({id: 'jobs.labels.scope'}),
+            value: intl.formatMessage({ id: `jobs.scopes.${job.scope}` })
+
+        },
+        {
+            name: intl.formatMessage({id: 'jobs.labels.actor'}),
+            value: job.userFullName
+        },
+        {
+            name: intl.formatMessage({id: 'global.labels.created'}),
+            value: localDateTime(job.created)
+        },
+        {
+            name: intl.formatMessage({id: 'jobs.labels.pendingAt'}),
+            value: job.pendingAt ? localDateTime(job.pendingAt) : 'N/A'
+        },
+        {
+            name: intl.formatMessage({id: 'jobs.labels.runningAt'}),
+            value: job.runningAt ? localDateTime(job.runningAt) : 'N/A'
+        },
+        {
+            name: intl.formatMessage({id: 'jobs.labels.completedAt'}),
+            value: job.completedAt ? localDateTime(job.completedAt) : 'N/A'
+        }
+    ], [job, intl])
 
     return <div className="space-y-4">
         <div className="flex items-center justify-between space-y-4">
@@ -48,6 +87,13 @@ export default function SingleJobClientPage() {
         </div>
         <div className="flex flex-col space-y-4">
             <JobProgressAlert />
+        </div>
+        <div className="w-full bg-white p-4 shadow rounded-xl space-y-3 border">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm text-gray-700">
+                {details.map((item, index) => <div key={`description-${index}`}>
+                    <span className="font-semibold">{item.name}:</span> {item.value}
+                </div>)}
+            </div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-4">
             <JobMetadataCard />

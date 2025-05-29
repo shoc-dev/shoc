@@ -7,7 +7,12 @@ import JobTaskStatusBadge from "../../../../_components/job-task-status-badge";
 import JobTaskLogsActionsDropdown, { JobTaskLogsActionTypes } from "./job-task-logs-actions-dropdown";
 import JobTaskProgressAlert from "../../_components/job-task-progress-alert";
 import { useRouter } from "next/navigation";
-import CodeBlock from "@/components/vc/code-block";
+import { Textarea } from "@/components/ui/textarea";
+import { useCallback, useEffect, useState } from "react";
+import ErrorDefinitions from "@/addons/error-handling/error-definitions";
+import ErrorAlert from "@/components/general/error-alert";
+import LoadingContainer from "@/components/general/loading-container";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function SingleTaskLogsClientPage() {
 
@@ -15,6 +20,9 @@ export default function SingleTaskLogsClientPage() {
     const { value: task, loading: taskLoading } = useJobTask();
     const { loading: jobLoading } = useJob();
     const router = useRouter();
+    const [connecting, setConnecting] = useState(true);
+    const [errors, setErrors] = useState<any[]>([]);
+    const [logs, setLogs] = useState('');
 
     const loading = taskLoading || jobLoading;
 
@@ -23,6 +31,65 @@ export default function SingleTaskLogsClientPage() {
             router.refresh()
         }
     }
+
+    const url = `/api/workspaces/${task.workspaceId}/jobs/${task.jobId}/tasks/${task.sequence}/logs`
+
+    async function getLogs(url: string) {
+        setErrors([]);
+        setLogs('')
+        setConnecting(true);
+
+        const response = await fetch(url);
+
+        setConnecting(false)
+        if (!response.ok) {
+
+            try {
+                const errorBody = await response.json();
+                setErrors(errorBody.errors)
+            }
+            catch (e: any) {
+                setErrors([ErrorDefinitions.unknown(e.message)])
+            }
+            return;
+        }
+
+        if (!response.body) {
+            return;
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+
+        while (true) {
+            const { done, value } = await reader.read();
+
+            if (done) {
+                break;
+            }
+
+            const chunk = decoder.decode(value, { stream: true });
+
+            const events = chunk.split('\n\n');
+            for (const event of events) {
+                if (event.startsWith('data: ')) {
+                    const eventData = event.slice(6);
+                    setLogs(prev => `${prev}${eventData}\n`);
+                }
+            }
+        }
+    };
+
+    const load = useCallback(async () => {
+        await getLogs(url);
+
+    }, [url])
+
+
+    useEffect(() => {
+        load()
+    }, [load])
+
 
     return <div className="space-y-4">
         <div className="flex items-center justify-between space-y-4">
@@ -42,8 +109,20 @@ export default function SingleTaskLogsClientPage() {
         <div className="flex flex-col space-y-4">
             <JobTaskProgressAlert />
         </div>
-        <div className="flex">
-            Logs will go here
+        {errors?.length > 0 && <Alert variant='destructive'>
+            <AlertTitle>{intl.formatMessage({id: 'jobs.logs.errors.notAvailable'})}</AlertTitle>
+            {errors[0].message && <AlertDescription>
+                {errors[0].message}    
+            </AlertDescription>}
+            </Alert>}
+        <div className="flex h-full">
+            <LoadingContainer loading={connecting} className="h-full w-full">
+                <Textarea className="h-full" 
+                value={logs} 
+                placeholder={intl.formatMessage({id: 'jobs.logs.placeholder'})} 
+                disabled={loading || connecting || errors?.length > 0} 
+                readOnly />
+            </LoadingContainer>
         </div>
 
     </div>

@@ -1,3 +1,4 @@
+import 'server-only'
 import { JWT, getToken } from "next-auth/jwt";
 import { getAuthSecret, getBaseUrl } from "./config";
 import { codeGrant } from "./lifecycle";

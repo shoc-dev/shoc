@@ -35,12 +35,12 @@ export default class WorkspaceJobTasksClient extends BaseAxiosClient {
     });
   }
 
-  getLogsBySequenceUrl(token, workspaceId, jobId, sequence){
+  getLogsBySequenceUrl(workspaceId, jobId, sequence){
 
     const url = this.urlify({
       api: `api/workspaces/${workspaceId}/jobs/${jobId}/tasks/by-sequence/${sequence}/logs`
     });
 
-    return Promise.resolve({ data: { token, url }})
+    return { url }
   }
 }

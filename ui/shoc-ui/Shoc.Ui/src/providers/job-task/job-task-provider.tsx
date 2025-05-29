@@ -18,8 +18,7 @@ export default function JobTaskProvider({ children, initialValue }: { children: 
 
     const load = useCallback(async () => {
         setProgress(true);
-
-        const { data, errors } = await rpc('job/workspace-job-tasks/getBySequence', { workspaceId: initialValue.workspaceId, jobId: initialValue.id, sequence: initialValue.sequence })
+        const { data, errors } = await rpc('job/workspace-job-tasks/getBySequence', { workspaceId: initialValue.workspaceId, jobId: initialValue.jobId, sequence: initialValue.sequence })
 
         if (errors) {
             setResult({ data: null, errors })
@@ -29,7 +28,7 @@ export default function JobTaskProvider({ children, initialValue }: { children: 
 
         setProgress(false);
 
-    }, [initialValue.workspaceId, initialValue.id, initialValue.sequence])
+    }, [initialValue.workspaceId, initialValue.jobId, initialValue.sequence])
 
     const initialValueMapped = useMemo(() => mapper(initialValue), [initialValue]);
     const valueMapped = useMemo(() => mapper(result.data ?? initialValue), [result.data, initialValue])

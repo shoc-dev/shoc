@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, RefreshCcw } from "lucide-react";
+import { Logs, MoreHorizontal, RefreshCcw } from "lucide-react";
 import { useIntl } from "react-intl";
 
-export type JobTaskActionTypes = 'refresh'
+export type JobTaskActionTypes = 'refresh' | 'view_logs'
 
 type JobTaskActionsDropdownProps = {
     disabled?: boolean
@@ -29,6 +29,10 @@ export default function JobTaskActionsDropdown({ onSelect, disabled }: JobTaskAc
             <DropdownMenuItem onClick={() => onSelect('refresh')}>
                 <RefreshCcw />
                 {intl.formatMessage({ id: 'global.actions.refresh' })}
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onSelect('view_logs')}>
+                <Logs />
+                {intl.formatMessage({ id: 'jobs.logs.actions.view' })}
             </DropdownMenuItem>
         </DropdownMenuContent>
     </DropdownMenu>
