@@ -11,18 +11,20 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 import useWorkspaceMenu from "@/components/menu/use-workspace-menu"
+import { useIntl } from "react-intl"
 
 export default function WorkspaceSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  
+
   const menu = useWorkspaceMenu();
-  
+  const intl = useIntl();
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <WorkspaceSwitcher />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={menu} />
+        <NavMain title={intl.formatMessage({ id: 'workspaces.workspace' })} items={menu} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />

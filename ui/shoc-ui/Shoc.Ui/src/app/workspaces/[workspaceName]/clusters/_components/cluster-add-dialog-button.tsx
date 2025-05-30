@@ -159,7 +159,7 @@ export default function ClusterAddDialogButton({ workspaceId, className, disable
                     <FormLabel>{intl.formatMessage({ id: 'global.labels.type' })}</FormLabel>
                     <Select disabled={progress} onValueChange={fieldNoRef.onChange} {...fieldNoRef}>
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full">
                           <SelectValue placeholder={intl.formatMessage({ id: 'clusters.placeholders.type' })} />
                         </SelectTrigger>
                       </FormControl>

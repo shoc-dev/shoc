@@ -45,7 +45,7 @@ export default function WorkspaceClustersClientPage({ workspaceId, workspaceName
         return <ErrorScreen errors={errors} />
     }
 
-    return <div className="flex flex-col mx-auto w-full h-full">
+    return <div className="flex flex-col mx-auto w-full h-full space-y-4">
         {items.length > 0 && <div><ClusterAddDialogButton key="add-cluster" workspaceId={workspaceId} disabled={progress} onSuccess={({ name }) => {
             load(workspaceId).then(() => router.push(`/workspaces/${workspaceName}/clusters/${name}`))
         }} /></div>}

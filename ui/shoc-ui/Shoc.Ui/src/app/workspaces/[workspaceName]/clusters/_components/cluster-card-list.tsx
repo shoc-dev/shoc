@@ -8,7 +8,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import ClusterSkeletonCard from "./cluster-skeleton-card";
 
 const DEFAULT_PAGE_SIZE = 12;
-const SKELETON_PAGE_SIZE = 12;
+const SKELETON_PAGE_SIZE = 6;
 
 export default function ClusterCardList({ workspaceName, items, progress }: { workspaceId: string, workspaceName: string, items: any[], progress: boolean }) {
 
@@ -19,10 +19,10 @@ export default function ClusterCardList({ workspaceName, items, progress }: { wo
         return items.slice(page * DEFAULT_PAGE_SIZE, Math.max((page + 1) * DEFAULT_PAGE_SIZE, items.length - 1))
     }, [page, items])
 
-    return <>
-        <div className="flex gap-4 h-min w-full py-4">
-            {!progress && current.map((item: any) => <ClusterCard key={item.id} workspaceName={workspaceName} className="w-full lg:w-[calc(50%-1rem)] xl:w-[calc(33%-1rem)] 2xl:w-[calc(25%-1rem)]" cluster={item} />)}
-            {progress && Array.from(Array(SKELETON_PAGE_SIZE).keys()).map(idx => <ClusterSkeletonCard className="w-full lg:w-[calc(50%-1rem)] xl:w-[calc(33%-1rem)] 2xl:w-[calc(25%-1rem)]" key={idx} />)}
+    return <div className="flex flex-col space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 4 gap-4">
+            {!progress && current.map((item: any) => <ClusterCard key={item.id} workspaceName={workspaceName} cluster={item} />)}
+            {progress && Array.from(Array(SKELETON_PAGE_SIZE).keys()).map(idx => <ClusterSkeletonCard key={idx} />)}
         </div>
         {items.length > DEFAULT_PAGE_SIZE && <div className="flex mx-auto space-x-2">
             <Button variant="outline" disabled={page === 0} onClick={() => setPage(prev => prev - 1)}>
@@ -34,5 +34,5 @@ export default function ClusterCardList({ workspaceName, items, progress }: { wo
                 <ChevronRight className="ml-2 w-4 h-4" />
             </Button>
         </div>}
-    </>
+    </div>
 }

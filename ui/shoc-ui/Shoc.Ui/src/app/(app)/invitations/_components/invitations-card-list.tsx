@@ -8,7 +8,8 @@ import NoInvitations from "./no-invitations";
 import InvitationSkeletonCard from "./invitation-skeleton-card";
 import InvitationCard from "./invitation-card";
 
-const DEFAULT_PAGE_SIZE = 4;
+const DEFAULT_PAGE_SIZE = 12;
+const DEFAULT_SKELETON_PAGE_SIZE = 6;
 
 export default function InvitationsCardList(
   { progress, items = [], onUpdate = () => { } }:
@@ -22,14 +23,18 @@ export default function InvitationsCardList(
   }, [page, items])
 
   if (progress) {
-    return Array.from(Array(DEFAULT_PAGE_SIZE).keys()).map(idx => <InvitationSkeletonCard key={idx} />)
+    return <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 4 gap-4">
+      {Array.from(Array(DEFAULT_SKELETON_PAGE_SIZE).keys()).map(idx => <InvitationSkeletonCard key={idx} />)}
+    </div>
   }
   if (items.length === 0) {
     return <NoInvitations />
   }
 
-  return <>
-    {current.map((item: any) => <InvitationCard key={item.id} invitation={item} onDeclined={() => onUpdate() } onAccepted={() => onUpdate() } />)}
+  return <div className="flex flex-col space-y-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 4 gap-4">
+      {current.map((item: any) => <InvitationCard key={item.id} invitation={item} onDeclined={() => onUpdate()} onAccepted={() => onUpdate()} />)}
+    </div>
     {items.length > DEFAULT_PAGE_SIZE && <div className="flex mx-auto space-x-2">
       <Button variant="outline" disabled={page === 0} onClick={() => setPage(prev => prev - 1)}>
         <ChevronLeft className="mr-2 w-4 h-4" />
@@ -40,6 +45,6 @@ export default function InvitationsCardList(
         <ChevronRight className="ml-2 w-4 h-4" />
       </Button>
     </div>}
-  </>
+  </div>
 
 }

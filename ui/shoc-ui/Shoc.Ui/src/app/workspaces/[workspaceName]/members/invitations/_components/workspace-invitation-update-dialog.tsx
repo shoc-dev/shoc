@@ -16,7 +16,7 @@ import { z } from "zod"
 import ErrorAlert from "@/components/general/error-alert"
 import { useEffect, useState } from "react"
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form"
 import SpinnerIcon from "@/components/icons/spinner-icon"
 import { rpc } from "@/server-actions/rpc"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -119,7 +119,7 @@ export default function WorkspaceInvitationUpdateDialog({ item, workspaceId, ope
                     <FormLabel>{intl.formatMessage({ id: 'workspaces.labels.role' })}</FormLabel>
                     <Select onValueChange={fieldNoRef.onChange} {...fieldNoRef}>
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full">
                           <SelectValue placeholder={intl.formatMessage({ id: 'workspaces.invitations.placeholders.role' })} />
                         </SelectTrigger>
                       </FormControl>
