@@ -1,0 +1,10 @@
+{
+    "landing.getStarted": "Get Started",
+    "landing.documentation": "Documentation",
+    "landing.navbar.menu.features": "Features",
+    "landing.navbar.menu.faq": "FAQ",
+    "landing.navbar.docs": "Docs",
+    "landing.hero.betaLabel": "Beta is available now! 🚀",
+    "landing.hero.title": "Serverless ML & HPC Workloads, Simplified",
+    "landing.hero.description": "Shoc Platform enables you to run machine learning and high-performance computing (HPC) jobs without managing infrastructure. Scale effortlessly, pay only for what you use, and focus on your code—not the servers."
+}

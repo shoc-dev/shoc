@@ -32,7 +32,7 @@ export default function InvitationsButton() {
     }, [load])
 
     return <Button variant="outline" onClick={() => router.push('/workspaces/invitations')} disabled={count === 0 || progress}>
-        {progress ? <SpinnerIcon className="animate-spin" /> : <SendIcon className="mr-2" />}
+        {progress ? <SpinnerIcon className="animate-spin" /> : <SendIcon />}
         <span className="hidden sm:flex">
             {intl.formatMessage({ id: 'workspaces.members.menu.invitations' })}
         </span>

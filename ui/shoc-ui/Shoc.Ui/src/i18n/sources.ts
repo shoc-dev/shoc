@@ -1,3 +1,4 @@
+import landingEn from "./messages/en/landing.json";
 import globalEn from "./messages/en/global.json";
 import authEn from "./messages/en/auth.json";
 import componentsEn from "./messages/en/components.json";
@@ -12,6 +13,7 @@ import localeConfig from "./locale-config";
 export const localeMessages = {
    
     en: {
+        ...landingEn,
         ...globalEn,
         ...authEn,
         ...componentsEn,

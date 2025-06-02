@@ -1,36 +1,34 @@
-import { SheetClose } from "@/components/ui/sheet";
-import Anchor from "@/components/vc/anchor";
+"use client"
 
-const NAVLINKS = [
-    {
-        title: "Docs",
-        href: `/docs`,
-    }
-];
+import {
+    NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList,
+} from "@/components/ui/navigation-menu";
+import { NavigationMenuProps } from "@radix-ui/react-navigation-menu";
+import Link from "next/link";
+import { useIntl } from "react-intl";
 
-export function PublicNavMenu({ isSheet = false }) {
+export default function PublicNavMenu(props: NavigationMenuProps) {
+    const intl = useIntl();
+
     return (
-        <>
-            {NAVLINKS.map((item) => {
-                const Comp = (
-                    <Anchor
-                        key={item.title + item.href}
-                        activeClassName="text-primary! md:font-semibold font-medium"
-                        absolute
-                        className="flex items-center gap-1 dark:text-stone-300/85 text-stone-800"
-                        href={item.href}
-                    >
-                        {item.title}
-                    </Anchor>
-                );
-                return isSheet ? (
-                    <SheetClose key={item.title + item.href} asChild>
-                        {Comp}
-                    </SheetClose>
-                ) : (
-                    Comp
-                );
-            })}
-        </>
-    );
-}
+        <NavigationMenu {...props}>
+            <NavigationMenuList className="data-[orientation=vertical]:gap-2 space-x-0 data-[orientation=vertical]:flex-col data-[orientation=vertical]:items-start">
+                <NavigationMenuItem>
+                    <NavigationMenuLink asChild>
+                        <Link prefetch={false} href="/#features">{intl.formatMessage({ id: 'landing.navbar.menu.features' })}</Link>
+                    </NavigationMenuLink>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                    <NavigationMenuLink asChild>
+                        <Link prefetch={false} href="/#faq">{intl.formatMessage({ id: 'landing.navbar.menu.faq' })}</Link>
+                    </NavigationMenuLink>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                    <NavigationMenuLink asChild>
+                        <Link prefetch={false} href="/docs">{intl.formatMessage({ id: 'landing.navbar.docs' })}</Link>
+                    </NavigationMenuLink>
+                </NavigationMenuItem>
+            </NavigationMenuList>
+        </NavigationMenu>
+    )
+};
