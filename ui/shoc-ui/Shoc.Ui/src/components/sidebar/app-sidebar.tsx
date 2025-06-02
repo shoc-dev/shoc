@@ -14,9 +14,9 @@ import {
 } from "@/components/ui/sidebar"
 import useAppMenu from "../menu/use-app-menu"
 import { useIntl } from "react-intl"
-import { GalleryVerticalEnd } from "lucide-react"
 import Link from "next/link"
 import { Badge } from "../ui/badge"
+import Image from "next/image"
 
 export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
@@ -31,7 +31,7 @@ export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sid
             <SidebarMenuButton size="lg" asChild>
               <Link prefetch={false} href="/workspaces">
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                  <GalleryVerticalEnd className="size-4" />
+                  <Image src="/logos/shoc-512x512.png" className="w-6 h-6" width={128} height={128} alt={intl.formatMessage({ id: 'shoc.platform' })} />
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none">
                   <span className="font-semibold">{intl.formatMessage({ id: 'shoc.platform' })}</span>
