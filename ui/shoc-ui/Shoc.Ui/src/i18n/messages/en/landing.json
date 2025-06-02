@@ -6,5 +6,18 @@
     "landing.navbar.docs": "Docs",
     "landing.hero.betaLabel": "Beta is available now! 🚀",
     "landing.hero.title": "Serverless ML & HPC Workloads, Simplified",
-    "landing.hero.description": "Shoc Platform enables you to run machine learning and high-performance computing (HPC) jobs without managing infrastructure. Scale effortlessly, pay only for what you use, and focus on your code—not the servers."
+    "landing.hero.description": "Shoc Platform enables you to run machine learning and high-performance computing (HPC) jobs without managing infrastructure. Scale effortlessly, pay only for what you use, and focus on your code—not the servers.",
+    "landing.features.title": "The Platform Features",
+    "landing.features.containerization.title": "Seamless Containerization",
+    "landing.features.containerization.description": "The platform automatically packages your code into containers behind the scenes, ensuring smooth execution across any connected cluster — no manual Dockerfiles required.",
+    "landing.features.scheduling.title": "Advanced Job Scheduling",
+    "landing.features.scheduling.description": "Run and manage diverse workloads, from HPC (OpenMPI) to ML training jobs (TensorFlow, PyTorch). Shoc Platform queues, schedules, and optimizes resource allocation automatically.",
+    "landing.features.clustering.title": "Cluster-Aware Execution",
+    "landing.features.clustering.description": "Attach and manage multiple clusters per workspace. Shoc Platform intelligently distributes jobs based on resource availability, constraints, and priority.",
+    "landing.features.secrets.title": "Integrated Secrets Management",
+    "landing.features.secrets.description": "Securely store and use secrets—both at the workspace and user level. Inject credentials into your jobs without exposing sensitive data.",
+    "landing.features.registry.title": "Unified Container Registry",
+    "landing.features.registry.description": "Push and pull images via the built-in registry or connect your own. Use Shoc as an authenticating gateway to enforce access control on your images.",
+    "landing.features.security.title": "Enterprise-Grade Security & Access Control",
+    "landing.features.security.description": " Maintain strict resource isolation across users and workspaces with a fine-grained, secure Role-Based Access Control (RBAC) system."
 }

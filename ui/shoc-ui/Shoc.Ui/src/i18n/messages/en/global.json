@@ -44,7 +44,7 @@
     "global.messages.permanentRemove": "We will permanently remove the record.",
     "global.validation.invalidEmail": "Enter a valid email address.",
     "global.placeholders.email": "someone@example.com",
-    "global.builtBy": "Build by",
+    "global.builtBy": "Built by",
     "global.footer.sourceNotice": "The source code is available on",
     "global.sponsor": "Sponsor",
     "global.notice.loading": "Loading...",

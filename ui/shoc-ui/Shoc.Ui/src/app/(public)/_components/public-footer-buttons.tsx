@@ -2,7 +2,7 @@
 
 import { buttonVariants } from "@/components/ui/button";
 import staticLinks from "@/well-known/static-links";
-import { HeartIcon, TriangleIcon } from "lucide-react";
+import { HeartIcon } from "lucide-react";
 import Link from "next/link";
 import { useIntl } from "react-intl";
 
@@ -12,6 +12,8 @@ export function PublicFooterButtons() {
       <>
         
         <Link
+          prefetch={false}
+          target="_blank"
           href={staticLinks.githubRepo}
           className={buttonVariants({ variant: "outline", size: "sm" })}
         >
