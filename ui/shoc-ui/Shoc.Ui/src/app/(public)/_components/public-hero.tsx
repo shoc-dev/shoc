@@ -2,7 +2,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowUpRight, BookText, CirclePlay, FileTerminal, SquareChevronRight, Terminal, TerminalSquare } from "lucide-react";
+import { ArrowUpRight, LayoutTemplate, SquareChevronRight } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 import { useIntl } from "react-intl";
@@ -31,13 +31,13 @@ export default function PublicHero() {
                                 {intl.formatMessage({ id: 'landing.getStarted' })} <ArrowUpRight className="!h-5 !w-5" />
                             </Button>
                         </Link>
-                        <Link prefetch={false} href="/docs">
+                        <Link prefetch={false} href="/templates">
                             <Button
                                 variant="outline"
                                 size="lg"
                                 className="w-full sm:w-auto rounded-full text-base shadow-none"
                             >
-                                <BookText className="!h-5 !w-5" /> {intl.formatMessage({ id: 'landing.documentation' })}
+                                <LayoutTemplate className="!h-5 !w-5" /> {intl.formatMessage({ id: 'landing.navbar.templates' })}
                             </Button>
                         </Link>
                     </div>

@@ -1,3 +1,4 @@
+import PublicFooter from "./_components/public-footer";
 import PublicNavbar from "./_components/public-navbar";
 
 export default async function PublicLayout({ children }: any) {
@@ -7,5 +8,6 @@ export default async function PublicLayout({ children }: any) {
         <main className="pt-16 xs:pt-20 sm:pt-24">
             {children}
         </main>
+        <PublicFooter />
     </>
 }

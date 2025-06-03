@@ -18,7 +18,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function TemplatesPage() {
 
     const intl = await getIntl();
-    const { data: templates, errors } = await  rpc('template/templates/getAll')
+    const { data: templates, errors } = await rpc('template/templates/getAll')
     if (errors) {
         return <ErrorScreen errors={errors} />
     }
@@ -30,7 +30,7 @@ export default async function TemplatesPage() {
                     {intl.formatMessage({id: 'templates'})}
                 </h1>
                 <p className="text-muted-foreground">
-                    Check out our templates to build and run another great job!
+                    {intl.formatMessage({id: 'templates.headline'})}
                 </p>
             </div>
             <div className="grid md:grid-cols-3 sm:grid-cols-2 grid-cols-1 sm:gap-8 gap-4 mb-5">

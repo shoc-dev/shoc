@@ -7,5 +7,5 @@ export default async function TemplatePage(props: any) {
     name
   } = params;
 
-  redirect(`/docs/templates/${name}/variants/default`, RedirectType.replace)
+  redirect(`/templates/${name}/variants/default`, RedirectType.replace)
 }

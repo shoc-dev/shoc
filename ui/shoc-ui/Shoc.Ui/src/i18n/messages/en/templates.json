@@ -1,4 +1,12 @@
 {
     "templates": "Templates",
-    "templates.menu.templates": "Templates"
+    "templates.menu.templates": "Templates",
+    "templates.headline": "Check out our templates to build and run another great job!",
+    "templates.actions.backToAll": "Back to templates",
+    "templates.sections.overview": "Overview",
+    "templates.sections.usage": "Usage",
+    "templates.sections.specification": "Specification",
+    "templates.sections.templateCode": "Templace Code",
+    "templates.sections.template": "Template",
+    "templates.sections.buildSpec": "Build Specification"
 }

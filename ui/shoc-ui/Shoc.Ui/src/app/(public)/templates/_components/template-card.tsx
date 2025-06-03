@@ -18,14 +18,14 @@ export default function TemplateCard({ template: { name, title, description, aut
         className="flex flex-col gap-2 items-start border rounded-md py-5 px-3"
     >
         <h3 className="text-md font-semibold -mt-1 pr-7">
-            <Link href={`/docs/templates/${name}/variants/default`} prefetch={false}>
+            <Link href={`/templates/${name}/variants/default`} prefetch={false}>
                 {title}
             </Link>
         </h3>
         <p className="text-sm text-muted-foreground">{description} </p>
         <Separator />
         <div className="flex space-x-2 w-full mt-auto">
-            {variants.map(variant => <Link key={variant} prefetch={false} href={`/docs/templates/${name}/variants/${variant}`}>
+            {variants.map(variant => <Link key={variant} prefetch={false} href={`/templates/${name}/variants/${variant}`}>
                 <Badge variant="outline">
                     {variant}
                 </Badge>

@@ -25,7 +25,7 @@ export default function PublicNavMenu(props: NavigationMenuProps) {
                 </NavigationMenuItem>
                 <NavigationMenuItem>
                     <NavigationMenuLink asChild>
-                        <Link prefetch={false} href="/docs">{intl.formatMessage({ id: 'landing.navbar.docs' })}</Link>
+                        <Link prefetch={false} href="/templates">{intl.formatMessage({ id: 'landing.navbar.templates' })}</Link>
                     </NavigationMenuLink>
                 </NavigationMenuItem>
             </NavigationMenuList>

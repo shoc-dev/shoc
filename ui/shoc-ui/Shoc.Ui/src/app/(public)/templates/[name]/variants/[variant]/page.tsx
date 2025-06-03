@@ -4,7 +4,6 @@ import Link from "next/link";
 import Typography from "@/components/vc/typography";
 import getIntl from "@/i18n/get-intl";
 import { Metadata } from "next";
-import { getVariant } from "@/app/(public)/docs/templates/cached-template-actions";
 import ErrorScreen from "@/components/error/error-screen";
 import Markdown from 'react-markdown'
 import CodeBlock from "@/components/vc/code-block";
@@ -14,6 +13,7 @@ import {
     AccordionItem,
     AccordionTrigger,
 } from "@/components/ui/accordion"
+import { getVariant } from "../../../cached-template-actions";
 
 type PageProps = {
     params: Promise<{ name: string, variant: string }>;
@@ -59,9 +59,9 @@ export default async function VariantPage(props: PageProps) {
                     variant: "link",
                     className: "mx-0! px-0! mb-7 -ml-1! ",
                 })}
-                href="/docs/templates"
+                href="/templates"
             >
-                <ArrowLeftIcon className="w-4 h-4 mr-1.5" /> Back to templates
+                <ArrowLeftIcon className="w-4 h-4 mr-1.5" /> {intl.formatMessage({id: 'templates.actions.backToAll'})}
             </Link>
             <div className="flex flex-col gap-3 pb-4 w-full mb-2">
                 <h1 className="sm:text-4xl text-3xl font-bold">
@@ -75,13 +75,13 @@ export default async function VariantPage(props: PageProps) {
                     </Typography>
                     <div className="mt-4">
                         <h2 className="sm:text-2xl text-xl font-bold">
-                            Usage
+                            {intl.formatMessage({id: 'templates.sections.usage'})}
                         </h2>
                         <CodeBlock className="mt-2" language="bash" code={`shoc init ${name}:${variant}`} />
                     </div>
                     <Typography className="mt-4">
                         <h2 className="sm:text-2xl text-xl font-bold">
-                            Overview
+                            {intl.formatMessage({id: 'templates.sections.overview'})}
                         </h2>
                         <Markdown>
                             {template.overviewMarkdown}
@@ -89,7 +89,7 @@ export default async function VariantPage(props: PageProps) {
                     </Typography>
                     <Typography className="mt-4">
                         <h2 className="sm:text-2xl text-xl font-bold">
-                            Specification
+                            {intl.formatMessage({id: 'templates.sections.specification'})}
                         </h2>
                         <Markdown>
                             {template.specificationMarkdown}
@@ -97,17 +97,17 @@ export default async function VariantPage(props: PageProps) {
                     </Typography>
                     <div className="mt-4">
                         <h2 className="sm:text-2xl text-xl font-bold">
-                            Template Code
+                            {intl.formatMessage({id: 'templates.sections.templateCode'})}
                         </h2>
                         <Accordion className="mt-2" type="single" collapsible>
                             <AccordionItem value="template">
-                                <AccordionTrigger>Template</AccordionTrigger>
+                                <AccordionTrigger>{intl.formatMessage({id: 'templates.sections.template'})}</AccordionTrigger>
                                 <AccordionContent>
                                     <CodeBlock language="dockerfile" code={template.containerfile} />
                                 </AccordionContent>
                             </AccordionItem>
                             <AccordionItem value="spec">
-                                <AccordionTrigger>Build Specification</AccordionTrigger>
+                                <AccordionTrigger>{intl.formatMessage({id: 'templates.sections.buildSpec'})}</AccordionTrigger>
                                 <AccordionContent>
                                     <CodeBlock language="json" code={template.buildSpec} />
                                 </AccordionContent>
