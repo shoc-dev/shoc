@@ -42,6 +42,17 @@ services:
         roles: ['ui']
         port: 11053
   
+  # Admin UI service ports [11054 - 11055]
+  shoc-docs:
+    namespace: default
+    ports:
+      - protocol: http
+        roles: [ 'ui' ]
+        port: 11054
+      - protocol: https
+        roles: [ 'ui' ]
+        port: 11055
+  
   # Backend app service ports [11100 - 11999]
   
   # API Gateway service ports [11100 - 11103]
