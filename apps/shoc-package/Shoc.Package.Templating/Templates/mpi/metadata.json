@@ -1,0 +1,5 @@
+{
+  "title": "MPI Base Image",
+  "description": "A minimal template containing an MPI distribution according to the requested implementation.",
+  "author": "davitp"
+}

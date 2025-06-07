@@ -14,4 +14,14 @@ public static class PackageDefaultValues
     /// The value of default user
     /// </summary>
     public const string USER = "shoc";
+
+    /// <summary>
+    /// The value of default implementation (in case of MPI)
+    /// </summary>
+    public const string MPI_IMPLEMENTATION = "openmpi";
+
+    /// <summary>
+    /// The value of default implementation (in case of Function)
+    /// </summary>
+    public const string FUNCTION_IMPLEMENTATION = "";
 }

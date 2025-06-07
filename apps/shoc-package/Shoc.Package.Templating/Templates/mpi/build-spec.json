@@ -1,0 +1,30 @@
+{
+  "$id": "https://shoc.dev/api/templates/mpi/variants/default/build-spec",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "The schema of specification for 'mpi' package for Shoc Platform",
+  "type": "object",
+  "properties": {
+    "tag": {
+      "$ref": "https://shoc.dev/api/schemas/build-spec-01#/definitions/ImageTag",
+      "default": "latest",
+      "description": "The tag for the base image."
+    },
+    "uid": {
+      "$ref": "https://shoc.dev/api/schemas/build-spec-01#/definitions/Uid",
+      "default": 1000,
+      "description": "The user ID to create within the container."
+    },
+    "user": {
+      "$ref": "https://shoc.dev/api/schemas/build-spec-01#/definitions/UserName",
+      "default": "shoc",
+      "description": "The user name to create within the container."
+    },
+    "entrypoint": {
+      "$ref": "https://shoc.dev/api/schemas/build-spec-01#/definitions/EntrypointArray",
+      "default": [],
+      "description": "An array of entrypoint commands. Required to ensure safe container execution."
+    }
+  },
+  "required": ["entrypoint"],
+  "additionalProperties": false
+}

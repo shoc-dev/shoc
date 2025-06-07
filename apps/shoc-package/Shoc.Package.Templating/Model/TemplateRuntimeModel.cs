@@ -33,4 +33,14 @@ public class TemplateRuntimeModel
     /// The username
     /// </summary>
     public string User { get; set; }
+    
+    /// <summary>
+    /// The entrypoint array
+    /// </summary>
+    public string[] Entrypoint { get; set; }
+    
+    /// <summary>
+    /// The implementation 
+    /// </summary>
+    public string Implementation { get; set; }
 }

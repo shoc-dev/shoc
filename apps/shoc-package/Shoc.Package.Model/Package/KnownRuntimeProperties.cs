@@ -14,4 +14,14 @@ public static class KnownRuntimeProperties
     /// The user key
     /// </summary>
     public const string USER = "user";
+
+    /// <summary>
+    /// The entrypoint key
+    /// </summary>
+    public const string ENTRYPOINT = "entrypoint";
+    
+    /// <summary>
+    /// The implementation key
+    /// </summary>
+    public const string IMPLEMENTATION = "implementation";
 }

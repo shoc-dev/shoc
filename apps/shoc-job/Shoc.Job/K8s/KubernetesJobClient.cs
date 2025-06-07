@@ -46,6 +46,9 @@ public class KubernetesJobClient : KubernetesClientBase, IDisposable
             WorkspaceId = job.WorkspaceId,
             JobId = job.Id
         });
+
+        // make sure istio is disabled in any case for the target namespace of the job
+        labels["istio-injection"] = "disabled";
         
         // create a namespace object
         return new InitNamespaceResult

@@ -1,1 +1,0 @@
-Variant 1 example

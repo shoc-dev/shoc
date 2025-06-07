@@ -61,11 +61,6 @@ public class BuildTaskService
     /// The deadline of object creation
     /// </summary>
     private static readonly TimeSpan CREATING_DEADLINE = TimeSpan.FromMinutes(5);
-
-    /// <summary>
-    /// The default values of the spec
-    /// </summary>
-    private static readonly PackageSpecDefaultsModel SPEC_DEFAULTS = GetSpecDefaults();
     
     /// <summary>
     /// The build task repository
@@ -199,9 +194,12 @@ public class BuildTaskService
         
         // validate the spec against the schema
         ValidateBuildSpec(buildSpec, manifest.Spec);
+
+        // get the spec defaults based on template declared runtime type
+        var specDefaults = GetSpecDefaults(templateVariant.Runtime.Type);
         
         // build the final runtime
-        var runtime = BuildRuntime(templateVariant.Runtime, manifest.Spec, SPEC_DEFAULTS);
+        var runtime = BuildRuntime(templateVariant.Runtime, manifest.Spec, specDefaults);
         
         // serialize and store the runtime (ensure camel case)
         input.Runtime = JsonConvert.SerializeObject(runtime, new JsonSerializerSettings
@@ -216,7 +214,9 @@ public class BuildTaskService
         });
         
         // render containerfile based on the template and specification
-        input.Containerfile = await RenderContainerfile(templateVariant.Containerfile, manifest.Spec, SPEC_DEFAULTS);
+        input.Containerfile = await RenderContainerfile(templateVariant.Containerfile, manifest.Spec, specDefaults);
+        
+        Console.WriteLine(input.Containerfile);
 
         // gets the registry to store the image
         input.RegistryId = (await this.registryHandlerService.GetDefaultRegistryId(workspaceId)).Id;
@@ -616,27 +616,46 @@ public class BuildTaskService
 
         // try getting user from spec, otherwise fallback to runtime given value or default
         var user = spec.GetValueOrDefault(KnownRuntimeProperties.USER, null) as string ?? runtime.User ?? defaults.User;
+
+        // try getting entrypoint from spec, otherwise fallback to runtime given value or default
+        var entrypointParsed = (spec.GetValueOrDefault(KnownRuntimeProperties.ENTRYPOINT, null) as JArray)?.ToObject<string[]>();
+        var entrypoint = entrypointParsed ?? runtime.Entrypoint ?? [];
         
+        // try getting implementation from spec, otherwise fallback to runtime given value or default
+        var implementation = spec.GetValueOrDefault(KnownRuntimeProperties.IMPLEMENTATION, null) as string ?? runtime.User ?? defaults.Implementation;
+
         // build runtime model
         return new TemplateRuntimeModel
         {
             Type = runtime.Type,
             Args = runtime.Args,
             Uid = uid,
-            User = user
+            User = user,
+            Entrypoint = entrypoint,
+            Implementation = implementation
         };
     }
 
     /// <summary>
     /// The spec defaults
     /// </summary>
+    /// <param name="type">The type of the runtime</param>
     /// <returns></returns>
-    private static PackageSpecDefaultsModel GetSpecDefaults()
+    private static PackageSpecDefaultsModel GetSpecDefaults(string type)
     {
+        // the implementation value
+        var implementation = type switch
+        {
+            RuntimeTypes.FUNCTION => PackageDefaultValues.FUNCTION_IMPLEMENTATION,
+            RuntimeTypes.MPI => PackageDefaultValues.MPI_IMPLEMENTATION,
+            _ => string.Empty,
+        };
+        
         return new PackageSpecDefaultsModel
         {
             Uid = PackageDefaultValues.UID,
-            User = PackageDefaultValues.USER
+            User = PackageDefaultValues.USER,
+            Implementation = implementation
         };
     }
 }

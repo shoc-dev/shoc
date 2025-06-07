@@ -14,4 +14,9 @@ public class PackageSpecDefaultsModel
     /// The default user
     /// </summary>
     public string User { get; set; }
+    
+    /// <summary>
+    /// The implementation 
+    /// </summary>
+    public string Implementation { get; set; }
 }
