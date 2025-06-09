@@ -21,6 +21,7 @@ public class KubernetesTaskClientFactory
         return type switch
         {
             JobTaskTypes.FUNCTION => new FunctionKubernetesTaskClient(config),
+            JobTaskTypes.MPI => new MpiKubernetesTaskClient(config),
             _ => throw ErrorDefinition.Validation(JobErrors.INVALID_RUNTIME_TYPE, $"The type '{type}' is not supported")
                 .AsException()
         };

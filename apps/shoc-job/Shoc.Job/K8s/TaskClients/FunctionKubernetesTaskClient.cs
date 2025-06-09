@@ -157,13 +157,13 @@ public class FunctionKubernetesTaskClient : BaseKubernetesTaskClient
         var startTime = default(DateTime?);
         
         // if container is in running state and there is a valid start time (after task was created)
-        if (mainContainer?.State?.Running is { StartedAt: not null } && mainContainer.State.Running.StartedAt > task.Created)
+        if (mainContainer?.State?.Running is { StartedAt: not null } && mainContainer.State.Running.StartedAt >= task.Created)
         {
             startTime = mainContainer.State.Running.StartedAt;
         }
         
         // if container is in terminated state and there is a valid start time (after task was created)
-        if (mainContainer?.State?.Terminated is { StartedAt: not null } && mainContainer.State.Terminated.StartedAt > task.Created)
+        if (mainContainer?.State?.Terminated is { StartedAt: not null } && mainContainer.State.Terminated.StartedAt >= task.Created)
         {
             startTime = mainContainer.State.Terminated.StartedAt;
         }
@@ -172,7 +172,7 @@ public class FunctionKubernetesTaskClient : BaseKubernetesTaskClient
         {
             ObjectState = K8sObjectState.OK,
             StartTime = startTime,
-            CompletionTime = mainContainer?.State?.Terminated.FinishedAt ?? batchJob.Status.CompletionTime,
+            CompletionTime = mainContainer?.State?.Terminated?.FinishedAt ?? batchJob.Status?.CompletionTime,
             Succeeded = mainContainer?.State?.Terminated?.ExitCode == 0
         };
     }

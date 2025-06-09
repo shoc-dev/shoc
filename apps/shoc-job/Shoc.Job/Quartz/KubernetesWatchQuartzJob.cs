@@ -194,7 +194,7 @@ public class KubernetesWatchQuartzJob : IJob
 
         // get the task result
         var taskResult = await client.GetTaskStatus(job, task);
-
+        
         // the state is not OK for some unknown reason
         if (taskResult.ObjectState != K8sObjectState.OK)
         {

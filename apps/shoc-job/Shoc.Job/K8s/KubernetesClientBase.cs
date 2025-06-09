@@ -6,6 +6,7 @@ using k8s;
 using k8s.Models;
 using Shoc.Core;
 using Shoc.Core.Kubernetes;
+using Shoc.Core.Kubernetes.Model.Mpi.V2Beta1;
 using Shoc.Job.K8s.Model;
 using Shoc.Job.Model;
 using Shoc.Job.Model.Job;
@@ -94,6 +95,27 @@ public abstract class KubernetesClientBase
 
         // return matching items
         return matches.Items;
+    }
+    
+    /// <summary>
+    /// Gets the kubernetes job based on the selector
+    /// </summary>
+    /// <param name="job">The job instance</param>
+    /// <param name="task">The task instance</param>
+    /// <returns></returns>
+    protected async Task<IList<MPIJob>> GetKubernetesMpiJobs(JobModel job, JobTaskModel task)
+    {
+        // load matching jobs
+        var response = await this.client.ListNamespacedCustomObjectAsync<MPIJobList>(
+            group: "kubeflow.org",
+            version: "v2beta1",
+            namespaceParameter: job.Namespace,
+            plural: "mpijobs",
+            labelSelector: $"{ShocK8sLabels.SHOC_JOB_TASK}={task.Id}"
+        );
+        
+        // return matching items
+        return response.Items;
     }
     
     /// <summary>
