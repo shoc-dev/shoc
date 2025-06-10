@@ -1,0 +1,5 @@
+{
+  "title": "Lammps Base Image (OpenMPI)",
+  "description": "Complete lammps distribution based on OpenMPI.",
+  "author": "davitp"
+}

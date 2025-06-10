@@ -1,5 +1,5 @@
-# Use the base image "mpi" with a configurable tag (default to latest)
-FROM ghcr.io/shoc-dev/containers/library/{{ implementation ?? "openmpi-builder" }}:{{ tag ?? "latest" }}
+# Use the base image "lammps-openmpi" with a configurable tag (default to latest)
+FROM ghcr.io/shoc-dev/containers/library/lammps-openmpi:{{ tag ?? "latest" }}
 
 # Define environment variables for user and group IDs with a default value for uid and user
 ENV SHOC_UID={{ uid ?? system.uid }}
@@ -39,10 +39,6 @@ WORKDIR /home/$SHOC_USER
 
 # Copy all files into the ~/ directory
 COPY . /home/$SHOC_USER
-
-{{if make}}
-RUN make {{ make }}
-{{end}}
 
 # Set the entrypoint for the container to be predefined script
 ENTRYPOINT ["/app/entrypoint.sh"]

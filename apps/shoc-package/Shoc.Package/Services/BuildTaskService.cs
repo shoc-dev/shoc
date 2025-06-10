@@ -216,8 +216,6 @@ public class BuildTaskService
         // render containerfile based on the template and specification
         input.Containerfile = await RenderContainerfile(templateVariant.Containerfile, manifest.Spec, specDefaults);
         
-        Console.WriteLine(input.Containerfile);
-
         // gets the registry to store the image
         input.RegistryId = (await this.registryHandlerService.GetDefaultRegistryId(workspaceId)).Id;
         
