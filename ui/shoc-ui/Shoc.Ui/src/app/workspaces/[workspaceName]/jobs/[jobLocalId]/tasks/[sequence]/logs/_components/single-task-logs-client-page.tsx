@@ -7,7 +7,7 @@ import JobTaskStatusBadge from "../../../../_components/job-task-status-badge";
 import JobTaskLogsActionsDropdown, { JobTaskLogsActionTypes } from "./job-task-logs-actions-dropdown";
 import JobTaskProgressAlert from "../../_components/job-task-progress-alert";
 import { Textarea } from "@/components/ui/textarea";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import ErrorDefinitions from "@/addons/error-handling/error-definitions";
 import LoadingContainer from "@/components/general/loading-container";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -29,9 +29,12 @@ export default function SingleTaskLogsClientPage() {
         }
     }
 
-    const url = `/api/workspaces/${task.workspaceId}/jobs/${task.jobId}/tasks/${task.sequence}/logs`
+    const url = useMemo(
+        () => `/api/workspaces/${task.workspaceId}/jobs/${task.jobId}/tasks/${task.sequence}/logs`,
+        [task.workspaceId, task.jobId, task.sequence]
+    )
 
-    async function getLogs(url: string) {
+    const getLogs = useCallback(async (url: string) => {
         setErrors([]);
         setLogs('')
         setConnecting(true);
@@ -75,12 +78,11 @@ export default function SingleTaskLogsClientPage() {
                 }
             }
         }
-    };
+    }, []);
 
     const load = useCallback(async () => {
         await getLogs(url);
-
-    }, [url])
+    }, [url, getLogs])
 
 
     useEffect(() => {

@@ -22,7 +22,7 @@ export default function TemplateCard({ template: { name, title, description, aut
                 {title}
             </Link>
         </h3>
-        <p className="text-sm text-muted-foreground">{description} </p>
+        <p className="text-sm text-muted-foreground h-full">{description} </p>
         <Separator />
         <div className="flex space-x-2 w-full mt-auto">
             {variants.map(variant => <Link key={variant} prefetch={false} href={`/templates/${name}/variants/${variant}`}>
