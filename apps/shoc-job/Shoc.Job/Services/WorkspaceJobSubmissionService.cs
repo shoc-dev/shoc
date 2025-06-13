@@ -60,7 +60,7 @@ public class WorkspaceJobSubmissionService : WorkspaceJobServiceBase
             workspaceId,
             input.Manifest?.ClusterId,
             ClusterPermissions.CLUSTER_VIEW,
-            ClusterPermissions.CLUSTER_VIEW);
+            ClusterPermissions.CLUSTER_USE);
         
         // ensure referring to the correct object
         input.WorkspaceId = workspaceId;

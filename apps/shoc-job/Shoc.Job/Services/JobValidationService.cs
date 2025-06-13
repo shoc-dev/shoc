@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Shoc.ApiCore.GrpcClient;
 using Shoc.Core;
+using Shoc.Core.Kubernetes;
 using Shoc.Job.Data;
 using Shoc.Job.Model;
 using Shoc.Job.Model.Job;
@@ -46,24 +47,14 @@ public class JobValidationService : ValidationServiceBase
     protected const int MAX_JOB_ARRAY_REPLICAS_LIMIT = 10_000;
 
     /// <summary>
-    /// The maximum amount of memory requested by job (TBs * GBs * MBs * KBs * Bytes) 
-    /// </summary>
-    protected const long MAX_JOB_REQUESTED_MEMORY = 1L * 1024 * 1024 * 1024 * 1024;
-
-    /// <summary>
-    /// The maximum amount of CPU requested by job (N * 1000m)
-    /// </summary>
-    protected const long MAX_JOB_REQUESTED_CPU = 4096L * 1000;
-
-    /// <summary>
-    /// The maximum amount of NVIDIA GPU requested by job (N units)
-    /// </summary>
-    protected const long MAX_JOB_REQUESTED_NVIDIA_GPU = 4096;
-
-    /// <summary>
     /// The maximum amount of environment variables
     /// </summary>
     protected const int MAX_JOB_ENVIRONMENT_VARIABLES = 4096;
+
+    /// <summary>
+    /// The theoretical maximum of worker replicas
+    /// </summary>
+    protected const int MAX_MPI_WORKER_REPLICAS = 100_000_000;
     
     /// <summary>
     /// The label repository
@@ -236,49 +227,6 @@ public class JobValidationService : ValidationServiceBase
     }
 
     /// <summary>
-    /// Validates the values for the given resources
-    /// </summary>
-    /// <param name="input">The input to validate</param>
-    public void ValidateResources(JobTaskResourcesModel input)
-    {
-        // memory should be non-negative
-        if (input.Memory <= 0)
-        {
-            throw ErrorDefinition.Validation(JobErrors.INVALID_JOB_RESOURCES, "Requested memory should be positive").AsException();
-        }
-        
-        // memory should be within limit
-        if (input.Memory > MAX_JOB_REQUESTED_MEMORY)
-        {
-            throw ErrorDefinition.Validation(JobErrors.INVALID_JOB_RESOURCES, "Too much memory requested").AsException();
-        }
-        
-        // CPU should be non-negative
-        if (input.Cpu <= 0)
-        {
-            throw ErrorDefinition.Validation(JobErrors.INVALID_JOB_RESOURCES, "Requested CPU should be positive").AsException();
-        }
-        
-        // CPU should be within limit
-        if (input.Cpu > MAX_JOB_REQUESTED_CPU)
-        {
-            throw ErrorDefinition.Validation(JobErrors.INVALID_JOB_RESOURCES, "Too much CPU requested").AsException();
-        }
-        
-        // Nvidia GPU should be non-negative
-        if (input.NvidiaGpu <= 0)
-        {
-            throw ErrorDefinition.Validation(JobErrors.INVALID_JOB_RESOURCES, "Requested GPU should be positive").AsException();
-        }
-        
-        // Nvidia GPU should be within limit
-        if (input.NvidiaGpu > MAX_JOB_REQUESTED_NVIDIA_GPU)
-        {
-            throw ErrorDefinition.Validation(JobErrors.INVALID_JOB_RESOURCES, "Too much GPU requested").AsException();
-        }
-    }
-
-    /// <summary>
     /// Validates the environment configuration
     /// </summary>
     /// <param name="input">The input to validate</param>
@@ -294,6 +242,53 @@ public class JobValidationService : ValidationServiceBase
         if (input.Override.Count > MAX_JOB_ENVIRONMENT_VARIABLES)
         {
             throw ErrorDefinition.Validation(JobErrors.INVALID_JOB_ENVIRONMENT, "Too many environment variable overrides").AsException();
+        }
+    }
+
+    /// <summary>
+    /// Validate the MPI spec if given
+    /// </summary>
+    /// <param name="mpi">The MPI spec</param>
+    public void ValidateMpiSpec(JobRunManifestSpecMpiModel mpi)
+    {
+        // empty spec is valid
+        if (mpi == null)
+        {
+            return;
+        }
+        
+        // validate the workers spec
+        ValidateMpiWorkersSpec(mpi.Workers);
+    }
+
+    /// <summary>
+    /// Validate the workers spec
+    /// </summary>
+    /// <param name="workers">The workers spec</param>
+    private void ValidateMpiWorkersSpec(JobRunManifestSpecMpiWorkersModel workers)
+    {
+        // empty workers spec is ok no need to continue
+        if (workers == null)
+        {
+            return;
+        }
+        
+        // number of replicas is specified but not within the range
+        if (workers.Replicas is <= 0 or > MAX_MPI_WORKER_REPLICAS)
+        {
+            throw ErrorDefinition.Validation(JobErrors.INVALID_JOB_SPEC, $"The {workers.Replicas.Value} is not a valid number of workers for MPI").AsException();
+        }
+
+        // if distribution strategy is specified but not a valid value
+        if (workers.DistributionStrategy != null && !JobTaskMpiDistributionStrategies.ALL.Contains(workers.DistributionStrategy))
+        {
+            throw ErrorDefinition.Validation(JobErrors.INVALID_JOB_SPEC, $"The {workers.DistributionStrategy} is not a valid worker distribution strategy for MPI").AsException();
+        }
+        
+        // if distribution unit is specified but not a valid value
+        if (workers.DistributionUnit != null && !WellKnownResources.ALL.Contains(workers.DistributionUnit))
+        {
+            throw ErrorDefinition.Validation(JobErrors.INVALID_JOB_SPEC, $"The {workers.DistributionUnit} is not a valid distribution unit for MPI").AsException();
         }
     }
 }

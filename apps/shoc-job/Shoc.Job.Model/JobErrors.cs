@@ -119,6 +119,11 @@ public static class JobErrors
     /// The invalid job environment
     /// </summary>
     public const string INVALID_JOB_ENVIRONMENT = "JOB_INVALID_JOB_ENVIRONMENT";
+    
+    /// <summary>
+    /// The invalid job specification
+    /// </summary>
+    public const string INVALID_JOB_SPEC = "JOB_INVALID_JOB_SPEC";
 
     /// <summary>
     /// The job tasks are not valid

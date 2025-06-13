@@ -2,32 +2,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace Shoc.Core.Kubernetes;
+namespace Shoc.Job.Model.Job;
 
 /// <summary>
-/// The well-known resources
+/// The distribution strategy of MPI workers resources
 /// </summary>
-public static class WellKnownResources
+public static class JobTaskMpiDistributionStrategies
 {
     /// <summary>
-    /// The gpu resource key
+    /// The resource packing strategy (bigger workers when possible)
     /// </summary>
-    public const string CPU = "cpu";
-    
-    /// <summary>
-    /// The memory resource key
-    /// </summary>
-    public const string MEMORY = "memory";
+    public const string PACK = "pack";
 
     /// <summary>
-    /// The nvidia.com gpu resource key
+    /// The resource spreading strategy (smaller workers uniformly distributed)
     /// </summary>
-    public const string NVIDIA_GPU = "nvidia.com/gpu";
-
-    /// <summary>
-    /// The amd.com gpu resource key
-    /// </summary>
-    public const string AMD_GPU = "amd.com/gpu";
+    public const string SPREAD = "spread";
     
     /// <summary>
     /// Get and initialize all the constants
@@ -40,7 +30,7 @@ public static class WellKnownResources
     /// <returns></returns>
     private static ISet<string> GetAll()
     {
-        return typeof(WellKnownResources)
+        return typeof(JobTaskMpiDistributionStrategies)
             .GetFields(BindingFlags.Public | BindingFlags.Static)
             .Where(f => !f.IsInitOnly && f.IsLiteral && f.FieldType == typeof(string))
             .Select(f => f.GetRawConstantValue() as string)

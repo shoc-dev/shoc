@@ -1,10 +1,15 @@
-namespace Shoc.Job.Model.JobTask;
+namespace Shoc.Job.Model.Cluster;
 
 /// <summary>
-/// The definition of resources for task
+/// The cluster node resource model
 /// </summary>
-public class JobTaskResourcesModel
+public class ClusterNodeResourcesModel
 {
+    /// <summary>
+    /// The name of the node
+    /// </summary>
+    public string Name { get; set; }
+    
     /// <summary>
     /// The number of CPU units to allocate
     /// </summary>

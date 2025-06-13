@@ -8,11 +8,13 @@ using Microsoft.AspNetCore.DataProtection;
 using Quartz;
 using Shoc.Core;
 using Shoc.Core.Kubernetes;
+using Shoc.Job.Allocator;
 using Shoc.Job.Data;
 using Shoc.Job.K8s;
 using Shoc.Job.K8s.Model;
 using Shoc.Job.K8s.TaskClients;
 using Shoc.Job.Model;
+using Shoc.Job.Model.Cluster;
 using Shoc.Job.Model.Job;
 using Shoc.Job.Model.JobGitRepo;
 using Shoc.Job.Model.JobLabel;
@@ -62,6 +64,11 @@ public class JobSubmissionService : JobServiceBase
     /// The resource parser
     /// </summary>
     protected readonly ResourceParser resourceParser;
+
+    /// <summary>
+    /// The resource formatter
+    /// </summary>
+    protected readonly JobResourceFormatter resourceFormatter;
     
     /// <summary>
     /// The task status repository
@@ -74,6 +81,11 @@ public class JobSubmissionService : JobServiceBase
     protected readonly ISchedulerFactory schedulerFactory;
 
     /// <summary>
+    /// The allocator factory
+    /// </summary>
+    protected readonly JobResourceAllocatorFactory allocatorFactory;
+
+    /// <summary>
     /// Creates new instance of job submission service
     /// </summary>
     /// <param name="jobRepository">The job repository</param>
@@ -84,18 +96,22 @@ public class JobSubmissionService : JobServiceBase
     /// <param name="clusterResolver">The cluster resolver</param>
     /// <param name="secretResolver">The secret resolver</param>
     /// <param name="resourceParser">The resource parser</param>
+    /// <param name="resourceFormatter">The resource formatter</param>
     /// <param name="taskClientFactory">The task client factory for Kubernetes</param>
     /// <param name="taskStatusRepository">The task status repository</param>
     /// <param name="schedulerFactory">The scheduler factory</param>
-    public JobSubmissionService(IJobRepository jobRepository, JobValidationService validationService, JobProtectionProvider jobProtectionProvider, IJobTaskRepository taskRepository, JobPackageResolver packageResolver, JobClusterResolver clusterResolver, JobSecretResolver secretResolver, ResourceParser resourceParser, KubernetesTaskClientFactory taskClientFactory, IJobTaskStatusRepository taskStatusRepository, ISchedulerFactory schedulerFactory) 
+    /// <param name="allocatorFactory">The allocator factory</param>
+    public JobSubmissionService(IJobRepository jobRepository, JobValidationService validationService, JobProtectionProvider jobProtectionProvider, IJobTaskRepository taskRepository, JobPackageResolver packageResolver, JobClusterResolver clusterResolver, JobSecretResolver secretResolver, ResourceParser resourceParser, JobResourceFormatter resourceFormatter, KubernetesTaskClientFactory taskClientFactory, IJobTaskStatusRepository taskStatusRepository, ISchedulerFactory schedulerFactory, JobResourceAllocatorFactory allocatorFactory) 
         : base(jobRepository, validationService, jobProtectionProvider, taskClientFactory, taskRepository)
     {
         this.packageResolver = packageResolver;
         this.clusterResolver = clusterResolver;
         this.secretResolver = secretResolver;
         this.resourceParser = resourceParser;
+        this.resourceFormatter = resourceFormatter;
         this.taskStatusRepository = taskStatusRepository;
         this.schedulerFactory = schedulerFactory;
+        this.allocatorFactory = allocatorFactory;
     }
     
     /// <summary>
@@ -136,12 +152,6 @@ public class JobSubmissionService : JobServiceBase
         // the protection provider
         var protector = this.jobProtectionProvider.Create();
         
-        // parse the given resources
-        var resources = ParseResources(input.Manifest.Resources);
-        
-        // validate resources
-        this.validationService.ValidateResources(resources);
-        
         // build wrapped arguments model
         var args = new JobTaskArgsModel
         {
@@ -159,6 +169,9 @@ public class JobSubmissionService : JobServiceBase
 
         // the runtime as json back serialized
         var runtimeJson = ToJsonString(runtime);
+
+        // map the runtime
+        var taskType = MapTaskType(runtime.Type);
         
         // gets the user's pull credentials for the package's registry within the workspace
         var credentials = await this.packageResolver.GetPullCredential(package.RegistryId, input.WorkspaceId, input.UserId);
@@ -178,6 +191,12 @@ public class JobSubmissionService : JobServiceBase
         // resolve the cluster with proper validation
         var cluster = await this.clusterResolver.ResolveById(input.WorkspaceId, input.Manifest.ClusterId);
 
+        // get all node resources
+        var nodeResources = await this.GetClusterNodes(cluster.Configuration);
+
+        // create the allocator
+        var allocator = this.allocatorFactory.Create(taskType, nodeResources);
+            
         // combined set of decrypted environment key values
         var env = await this.ResolveEnvironment(input);
         
@@ -191,8 +210,11 @@ public class JobSubmissionService : JobServiceBase
             throw ErrorDefinition.Validation(JobErrors.INVALID_CLUSTER, "The cluster configuration is missing").AsException();
         }
 
-        // validates the cluster resources
-        await this.ValidateClusterResources(cluster.Configuration, resources);
+        // enrich and get new manifest with allocated resources
+        var manifest = allocator.Allocate(input.Manifest);
+
+        // parse the resources from manifest
+        var resources = this.resourceFormatter.FromManifest(manifest.Resources);
         
         // create a job instance
         var job = new JobModel
@@ -234,7 +256,7 @@ public class JobSubmissionService : JobServiceBase
                 ClusterId = input.Manifest.ClusterId,
                 PackageId = input.Manifest.PackageId,
                 UserId = input.UserId,
-                Type = MapTaskType(runtime.Type),
+                Type = taskType,
                 Runtime = runtimeJson,
                 Args = argsJson,
                 PackageReferenceEncrypted = packageReferenceJsonProtected,
@@ -242,10 +264,10 @@ public class JobSubmissionService : JobServiceBase
                 ArrayIndexer = input.Manifest.Array.Indexer,
                 ArrayCounter = input.Manifest.Array.Counter,
                 ResolvedEnvEncrypted = resolvedEnvJsonProtected,
-                MemoryRequested = resources.Memory,
-                CpuRequested = resources.Cpu,
-                NvidiaGpuRequested = resources.NvidiaGpu,
-                AmdGpuRequested = resources.AmdGpu,
+                MemoryRequested = resources?.Memory,
+                CpuRequested = resources?.Cpu,
+                NvidiaGpuRequested = resources?.NvidiaGpu,
+                AmdGpuRequested = resources?.AmdGpu,
                 Spec = specJson,
                 Status = JobTaskStatuses.CREATED,
                 Message = string.Empty,
@@ -277,7 +299,7 @@ public class JobSubmissionService : JobServiceBase
             GitRepo = gitRepo
         });
     }
-    
+
     /// <summary>
     /// Submit the created job to the target cluster
     /// </summary>
@@ -591,20 +613,22 @@ public class JobSubmissionService : JobServiceBase
             Encrypted = encrypted
         };
     }
+    
 
     /// <summary>
-    /// Parses the given resource strings into valid resource quantities
+    /// Parses the given nodes resources into a cluster node resource model
     /// </summary>
-    /// <param name="resources">The resources to parse</param>
+    /// <param name="node">The node resource result</param>
     /// <returns></returns>
-    private JobTaskResourcesModel ParseResources(JobRunManifestResourcesModel resources)
+    private ClusterNodeResourcesModel ParseNodeResult(NodeResourceResult node)
     {
-        return new JobTaskResourcesModel
+        return new ClusterNodeResourcesModel
         {
-            Cpu = this.resourceParser.ParseToMillicores(resources?.Cpu),
-            Memory = this.resourceParser.ParseToBytes(resources?.Memory),
-            NvidiaGpu = this.resourceParser.ParseToGpu(resources?.NvidiaGpu),
-            AmdGpu = this.resourceParser.ParseToGpu(resources?.AmdGpu)
+            Name = node.Name,
+            Cpu = this.resourceParser.ParseToMillicores(node.Cpu),
+            Memory = this.resourceParser.ParseToBytes(node.Memory),
+            NvidiaGpu = this.resourceParser.ParseToGpu(node.NvidiaGpu),
+            AmdGpu = this.resourceParser.ParseToGpu(node.AmdGpu)
         };
     }
 
@@ -646,6 +670,9 @@ public class JobSubmissionService : JobServiceBase
         
         // validate environment
         this.validationService.ValidateEnv(input.Manifest.Env);
+
+        // validate the MPI spec if given
+        this.validationService.ValidateMpiSpec(input.Manifest.Spec?.Mpi);
         
         // require the parent object
         await this.validationService.RequireWorkspace(input.WorkspaceId);
@@ -698,11 +725,10 @@ public class JobSubmissionService : JobServiceBase
     }
 
     /// <summary>
-    /// Validates the cluster resources
+    /// Gets the cluster node resources
     /// </summary>
     /// <param name="clusterConfiguration">The cluster config</param>
-    /// <param name="requirement">The resources to validate against</param>
-    private async Task ValidateClusterResources(string clusterConfiguration, JobTaskResourcesModel requirement)
+    private async Task<List<ClusterNodeResourcesModel>> GetClusterNodes(string clusterConfiguration)
     {
         // create a client to kubernetes
         using var client = new KubernetesClusterClient(clusterConfiguration);
@@ -716,60 +742,8 @@ public class JobSubmissionService : JobServiceBase
             throw ErrorDefinition.Validation(JobErrors.INVALID_CLUSTER, "No nodes available").AsException();
         }
         
-        // count capable nodes
-        var capableNodes = 0;
-        
-        // check each node
-        foreach (var nodeResource in nodeResources)
-        {
-            // assume node has enough capacity
-            var enoughCapacity = true;
-            
-            var cpu = this.resourceParser.ParseToMillicores(nodeResource.Cpu);
-            var memory = this.resourceParser.ParseToBytes(nodeResource.Memory);
-            var nvidiaGpu = this.resourceParser.ParseToGpu(nodeResource.NvidiaGpu);
-            var amdGpu = this.resourceParser.ParseToGpu(nodeResource.AmdGpu);
-            
-            // CPU is required
-            if (requirement.Cpu.HasValue)
-            {
-                // still enough if required CPU is less than is available
-                enoughCapacity = requirement.Cpu.Value <= cpu;
-            }
-            
-            // memory is required
-            if (requirement.Memory.HasValue)
-            {
-                // still enough if required memory is less than available
-                enoughCapacity = enoughCapacity && requirement.Memory.Value <= memory;
-            }
-            
-            // Nvidia GPU is required
-            if (requirement.NvidiaGpu.HasValue)
-            {
-                // still enough if required memory is less than available
-                enoughCapacity = enoughCapacity && requirement.NvidiaGpu.Value <= nvidiaGpu;
-            }
-            
-            // AMD GPU is required
-            if (requirement.AmdGpu.HasValue)
-            {
-                // still enough if required memory is less than available
-                enoughCapacity = enoughCapacity && requirement.AmdGpu.Value <= amdGpu;
-            }
-
-            // if enough based on all resource requirement stop the process
-            if (enoughCapacity)
-            {
-                capableNodes++;
-            }
-        }
-
-        // if there are no capable nodes to take one task, report not feasible
-        if (capableNodes == 0)
-        {
-            throw ErrorDefinition.Validation(JobErrors.INVALID_CLUSTER, "None of the nodes has enough allocatable resources").AsException();
-        }
+        // map the resources
+        return nodeResources.Select(ParseNodeResult).ToList();
     }
     
     /// <summary>
