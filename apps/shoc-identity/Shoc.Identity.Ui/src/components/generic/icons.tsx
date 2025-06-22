@@ -2,31 +2,22 @@ type IconProps = React.HTMLAttributes<SVGElement>
 
 const Icons = {
   logo: (props: IconProps) => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" {...props}>
-      <rect width="256" height="256" fill="none" />
-      <line
-        x1="208"
-        y1="128"
-        x2="128"
-        y2="208"
-        fill="none"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="16"
-      />
-      <line
-        x1="192"
-        y1="40"
-        x2="40"
-        y2="192"
-        fill="none"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="16"
-      />
+    <svg {...props} version="1.1" xmlns="http://www.w3.org/2000/svg"
+      width="512px" height="512px" viewBox="0 0 2095 2095" preserveAspectRatio="xMidYMid meet">
+      <g transform="translate(0,2095) scale(0.1,-0.1)" fill="white" stroke="none">
+        <path d="M14730 19297 c0 -7 -67 -115 -149 -239 -246 -374 -352 -545 -954
+      -1538 -586 -968 -1214 -1980 -1882 -3035 -889 -1403 -1455 -2318 -1455 -2350
+      0 -17 710 -25 2175 -25 1223 0 2653 -14 2701 -26 25 -6 19 -14 -127 -161 -183
+      -184 -1098 -1078 -1824 -1783 -286 -278 -772 -750 -1080 -1050 -1247 -1214
+      -1642 -1596 -2400 -2325 -1138 -1094 -3048 -2952 -3820 -3715 -427 -422 -742
+      -706 -762 -687 -3 4 25 55 62 114 163 259 1253 2002 1465 2343 347 558 949
+      1527 1143 1840 93 151 333 534 532 850 336 534 801 1276 994 1588 45 73 159
+      259 252 415 l169 282 -582 6 c-321 4 -1276 12 -2123 19 -847 6 -1659 15 -1804
+      18 l-264 7 964 955 c1208 1196 2163 2132 3864 3785 402 391 1095 1065 1540
+      1500 2495 2433 3094 3013 3279 3174 59 51 86 63 86 38z"/>
+      </g>
     </svg>
+
   ),
   twitter: (props: IconProps) => (
     <svg
