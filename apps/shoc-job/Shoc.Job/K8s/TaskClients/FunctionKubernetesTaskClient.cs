@@ -45,6 +45,9 @@ public class FunctionKubernetesTaskClient : BaseKubernetesTaskClient
         // the instance name
         var instanceName = GetInstanceName(input.Task);
         
+        // the input arguments when given
+        var extraArgs = input.Args?.Args ?? [];
+        
         // the default labels
         var labels = CreateManagedLabels(new ManagedMetadata
         {
@@ -96,7 +99,8 @@ public class FunctionKubernetesTaskClient : BaseKubernetesTaskClient
                                     Requests = GetTaskResources(input.Task),
                                     Limits = GetTaskResources(input.Task)
                                 },
-                                SecurityContext = GetSecurityContext(input.Runtime)
+                                SecurityContext = GetSecurityContext(input.Runtime),
+                                Args = extraArgs.Length > 0 ? extraArgs : null
                             }
                         },
                         ServiceAccountName = input.ServiceAccount,

@@ -86,8 +86,6 @@ public class JobMpiResourceAllocator : JobResourceAllocatorBase
         var launcher = output.Spec.Mpi.Launcher;
         var workers = output.Spec.Mpi.Workers;
         
-        Console.WriteLine("Initialized Manifest: {0}", JsonSerializer.Serialize(output, new JsonSerializerOptions{WriteIndented = true}));
-        
         // validating total resource requirements
         this.ValidateResourcesRangeValidity(output.Resources);
         
@@ -143,11 +141,7 @@ public class JobMpiResourceAllocator : JobResourceAllocatorBase
             return enriched;
         }
         
-        
-        throw ErrorDefinition.Validation(JobErrors.UNKNOWN_ERROR, "Don't supported yet").AsException();
-
-        // return modified output
-        return output;
+        throw ErrorDefinition.Validation(JobErrors.UNKNOWN_ERROR, "The distribution method is not supported yet! Please set the workers resources explicitly").AsException();
     }
     
 
@@ -383,64 +377,7 @@ public class JobMpiResourceAllocator : JobResourceAllocatorBase
             result.DefiniteProportions[WellKnownResources.AMD_GPU] = result.AmdGpuProportion.Value;
         }
         
-        Console.WriteLine($"Proportions: {JsonSerializer.Serialize(result, new JsonSerializerOptions{WriteIndented = true})}");
-        
         return result;
-    }
-    
-
-    /// <summary>
-    /// Checks if we should consider resources as defined
-    /// </summary>
-    /// <param name="resources">The resources</param>
-    /// <returns></returns>
-    private static string GetDefinedDistributionUnit(JobRunManifestResourcesModel resources)
-    {
-        // if Nvidia GPU is defined, use as a distribution unit
-        if (resources.NvidiaGpu is > 0)
-        {
-            return JobTaskMpiDistributionUnits.NVIDIA_GPU;
-        }
-        
-        // if AMD GPU is defined, use as a distribution unit
-        if (resources.AmdGpu is > 0)
-        {
-            return JobTaskMpiDistributionUnits.AMD_GPU;
-        }
-        
-        // if CPU is defined, use as a distribution unit
-        if (resources.AmdGpu is > 0)
-        {
-            return JobTaskMpiDistributionUnits.CPU;
-        }
-
-        return null;
-    }
-
-    /// <summary>
-    /// Gets the distribution unit value
-    /// </summary>
-    /// <param name="unit">The distribution unit</param>
-    /// <param name="resources">The resources</param>
-    /// <returns></returns>
-    private static long GetDistributionValue(string unit, JobRunManifestResourcesModel resources)
-    {
-        // get the value based on the unit
-        var value =  unit switch
-        {
-            JobTaskMpiDistributionUnits.CPU => resources.Cpu,
-            JobTaskMpiDistributionUnits.NVIDIA_GPU => resources.NvidiaGpu,
-            JobTaskMpiDistributionUnits.AMD_GPU => resources.AmdGpu,
-            _ => throw ErrorDefinition.Validation(JobErrors.INVALID_JOB_RESOURCES, $"The '{unit}' is not a valid unit").AsException()
-        };
-        
-        // make sure unit is defined
-        if (value is not > 0)
-        {
-            throw ErrorDefinition.Validation(JobErrors.INVALID_JOB_RESOURCES, $"The value of the unit '{unit}' should positive").AsException();
-        }
-
-        return value.Value;
     }
 
     /// <summary>

@@ -29,6 +29,11 @@ public class InitTaskInput
     public JobTaskRuntimeModel Runtime { get; set; }
     
     /// <summary>
+    /// The args of the task
+    /// </summary>
+    public JobTaskArgsModel Args { get; set; }
+    
+    /// <summary>
     /// The namespace for submission
     /// </summary>
     public string Namespace { get; set; }

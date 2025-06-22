@@ -71,6 +71,9 @@ public class MpiKubernetesTaskClient : BaseKubernetesTaskClient
         // indicate if is openmpi
         var isOpenMpi = implementation == "OpenMPI";
 
+        // the input arguments when given
+        var extraArgs = input.Args?.Args ?? [];
+
         // the mpi specs
         var mpiSpec = input.Spec.Mpi;
 
@@ -143,11 +146,10 @@ public class MpiKubernetesTaskClient : BaseKubernetesTaskClient
                                         Requests = GetContainerResources(launcherResources),
                                         Limits = GetContainerResources(launcherResources)
                                     },
-                                    Command = isOpenMpi && false ? ["mpirun"] : null,
-                                    Args = (isOpenMpi && false
-                                            ? ["-np", $"{processes}"]
-                                            : new[] { "mpirun", "-np", $"{processes}" })
+                                    Command = ["mpirun"],
+                                    Args = new[] { "-np", $"{processes}" }
                                         .Concat(input.Runtime.Entrypoint)
+                                        .Concat(extraArgs)
                                         .ToList()
                                 }
                             }
@@ -235,7 +237,7 @@ public class MpiKubernetesTaskClient : BaseKubernetesTaskClient
                     TtlSecondsAfterFinished = (int)TimeSpan.FromDays(30).TotalSeconds,
                     BackoffLimit = 0,
                     ActiveDeadlineSeconds = (int)TimeSpan.FromDays(30).TotalSeconds,
-                    Suspend = false,
+                    Suspend = false
                 },
                 MPIReplicaSpecs = replicaSpecs
             }

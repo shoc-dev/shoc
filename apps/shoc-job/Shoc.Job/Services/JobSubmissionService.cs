@@ -418,6 +418,7 @@ public class JobSubmissionService : JobServiceBase
             Task = task,
             Spec = FromJsonString<JobRunManifestSpecModel>(task.Spec),
             Runtime = DeserializeRuntime(task.Runtime),
+            Args = FromJsonString<JobTaskArgsModel>(task.Args),
             Namespace = nsResult.Namespace.Name(),
             ServiceAccount = saResult.ServiceAccount.Name(),
             PullSecret = pullSecretResult,
