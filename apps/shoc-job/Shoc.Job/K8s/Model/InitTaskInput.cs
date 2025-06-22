@@ -19,6 +19,11 @@ public class InitTaskInput
     public JobTaskModel Task { get; set; }
     
     /// <summary>
+    /// The manifest spec
+    /// </summary>
+    public JobRunManifestSpecModel Spec { get; set; }
+    
+    /// <summary>
     /// The runtime of the task
     /// </summary>
     public JobTaskRuntimeModel Runtime { get; set; }

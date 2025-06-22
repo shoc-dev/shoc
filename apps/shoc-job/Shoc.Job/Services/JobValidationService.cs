@@ -7,7 +7,6 @@ using Shoc.Core.Kubernetes;
 using Shoc.Job.Data;
 using Shoc.Job.Model;
 using Shoc.Job.Model.Job;
-using Shoc.Job.Model.JobTask;
 
 namespace Shoc.Job.Services;
 
@@ -55,6 +54,11 @@ public class JobValidationService : ValidationServiceBase
     /// The theoretical maximum of worker replicas
     /// </summary>
     protected const int MAX_MPI_WORKER_REPLICAS = 100_000_000;
+
+    /// <summary>
+    /// The maximum slots per single worker
+    /// </summary>
+    protected const int MAX_MPI_SLOTS_PER_WORKER = 10_000;
     
     /// <summary>
     /// The label repository
@@ -271,6 +275,12 @@ public class JobValidationService : ValidationServiceBase
         if (workers == null)
         {
             return;
+        }
+
+        // check validity of the slots per worker value
+        if (workers.SlotsPerWorker is <= 0 or > MAX_MPI_SLOTS_PER_WORKER)
+        {
+            throw ErrorDefinition.Validation(JobErrors.INVALID_JOB_SPEC, $"The {workers.SlotsPerWorker.Value} is not a valid number of slots per worker").AsException();
         }
         
         // number of replicas is specified but not within the range

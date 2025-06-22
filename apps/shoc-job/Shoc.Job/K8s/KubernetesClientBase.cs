@@ -256,31 +256,47 @@ public abstract class KubernetesClientBase
     /// <returns></returns>
     protected static Dictionary<string, ResourceQuantity> GetTaskResources(JobTaskModel task)
     {
+        return GetContainerResources(new JobRunManifestResourcesModel
+        {
+            Cpu = task.CpuRequested,
+            Memory = task.MemoryRequested,
+            NvidiaGpu = task.NvidiaGpuRequested,
+            AmdGpu = task.AmdGpuRequested
+        });
+    }
+
+    /// <summary>
+    /// Gets the task resource requirements dictionary
+    /// </summary>
+    /// <param name="resources">The resources</param>
+    /// <returns></returns>
+    protected static Dictionary<string, ResourceQuantity> GetContainerResources(JobRunManifestResourcesModel resources)
+    {
         // the result map
         var result = new Dictionary<string, ResourceQuantity>();
 
         // if Memory is requested
-        if (task.MemoryRequested.HasValue)
+        if (resources.Memory.HasValue)
         {
-            result[WellKnownResources.MEMORY] = new ResourceQuantity(task.MemoryRequested.ToString());
+            result[WellKnownResources.MEMORY] = new ResourceQuantity(resources.Memory.Value.ToString());
         }
         
         // if CPU is requested
-        if (task.CpuRequested.HasValue)
+        if (resources.Cpu.HasValue)
         {
-            result[WellKnownResources.CPU] = new ResourceQuantity($"{task.CpuRequested}m");
+            result[WellKnownResources.CPU] = new ResourceQuantity($"{resources.Cpu.Value}m");
         }
         
         // if Nvidia GPU is requested
-        if (task.NvidiaGpuRequested.HasValue)
+        if (resources.NvidiaGpu.HasValue)
         {
-            result[WellKnownResources.NVIDIA_GPU] = new ResourceQuantity(task.NvidiaGpuRequested.ToString());
+            result[WellKnownResources.NVIDIA_GPU] = new ResourceQuantity(resources.NvidiaGpu.ToString());
         }
         
         // if AMD GPU is requested
-        if (task.AmdGpuRequested.HasValue)
+        if (resources.AmdGpu.HasValue)
         {
-            result[WellKnownResources.AMD_GPU] = new ResourceQuantity(task.AmdGpuRequested.ToString());
+            result[WellKnownResources.AMD_GPU] = new ResourceQuantity(resources.AmdGpu.ToString());
         }
         
         // return result

@@ -23,6 +23,16 @@ public class MpiKubernetesTaskClient : BaseKubernetesTaskClient
     /// The custom resource definition of MPI Job (from Kubeflow)
     /// </summary>
     private const string MPI_JOB_CRD_NAME = "mpijobs.kubeflow.org";
+
+    /// <summary>
+    /// The default slots per worker (if everything is valid in spec, this should not be used)
+    /// </summary>
+    private const int DEFAULT_SLOTS_PER_WORKER = 1;
+    
+    /// <summary>
+    /// The default number of workers (if everything is valid in spec, this should not be used)
+    /// </summary>
+    private const int DEFAULT_WORKER_REPLICAS = 1;
     
     /// <summary>
     /// Creates new instance of MPI task client
@@ -60,6 +70,30 @@ public class MpiKubernetesTaskClient : BaseKubernetesTaskClient
         
         // indicate if is openmpi
         var isOpenMpi = implementation == "OpenMPI";
+
+        // the mpi specs
+        var mpiSpec = input.Spec.Mpi;
+
+        // use number of slots
+        var slots = mpiSpec.Workers.SlotsPerWorker.HasValue ? (int)mpiSpec.Workers.SlotsPerWorker.Value : DEFAULT_SLOTS_PER_WORKER;
+
+        // the overall number of workers
+        var overallWorkers = (int)(mpiSpec.Workers.Replicas ?? DEFAULT_WORKER_REPLICAS);
+        
+        // initialize number of replicas
+        var workers = overallWorkers;
+
+        // if not requesting dedicated launcher then effectively minus one worker
+        if (!mpiSpec.Launcher.Dedicated)
+        {
+            workers -= 1;
+        }
+
+        // compute the number of processes overall
+        var processes = overallWorkers * slots;
+        
+        // launcher resources separate if dedicated otherwise use workers resources
+        var launcherResources = mpiSpec.Launcher.Dedicated ? mpiSpec.Launcher.Resources : mpiSpec.Workers.Resources;
         
         // the default labels
         var labels = CreateManagedLabels(new ManagedMetadata
@@ -71,6 +105,112 @@ public class MpiKubernetesTaskClient : BaseKubernetesTaskClient
             JobId = input.Task.JobId,
             TaskId = input.Task.Id
         });
+
+        // initialize the replica specs
+        var replicaSpecs = new Dictionary<string, ReplicaSpec>
+        {
+            {
+                "Launcher", new ReplicaSpec
+                {
+                    Replicas = 1,
+                    RestartPolicy = DEFAULT_RESTART_POLICY,
+                    Template = new V1PodTemplateSpec
+                    {
+                        Metadata = new V1ObjectMeta
+                        {
+                            Labels = new Dictionary<string, string>(labels)
+                            {
+                                [ShocK8sLabels.SHOC_POD_ROLE] = ShocK8sPodRoles.EXECUTOR
+                            }
+                        },
+                        Spec = new V1PodSpec
+                        {
+                            ImagePullSecrets = GetPullSecrets(input),
+                            RestartPolicy = DEFAULT_RESTART_POLICY,
+                            ServiceAccountName = input.ServiceAccount,
+                            SecurityContext = GetPodSecurityContext(input.Runtime),
+                            Containers = new List<V1Container>
+                            {
+                                new()
+                                {
+                                    EnvFrom = GetEnvSources(input),
+                                    Name = GetLauncherContainerName(input.Task),
+                                    Image = input.PullSecret.Image,
+                                    Env = GetIndexerVars(input.Task),
+                                    SecurityContext = GetSecurityContext(input.Runtime),
+                                    Resources = new V1ResourceRequirements
+                                    {
+                                        Requests = GetContainerResources(launcherResources),
+                                        Limits = GetContainerResources(launcherResources)
+                                    },
+                                    Command = isOpenMpi && false ? ["mpirun"] : null,
+                                    Args = (isOpenMpi && false
+                                            ? ["-np", $"{processes}"]
+                                            : new[] { "mpirun", "-np", $"{processes}" })
+                                        .Concat(input.Runtime.Entrypoint)
+                                        .ToList()
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+        // when more than one worker are explicitly given add the spec
+        if (workers > 0)
+        {
+            replicaSpecs["Worker"] = new ReplicaSpec
+            {
+                Replicas = workers,
+                RestartPolicy = DEFAULT_RESTART_POLICY,
+                Template = new V1PodTemplateSpec
+                {
+                    Metadata = new V1ObjectMeta
+                    {
+                        Labels = new Dictionary<string, string>(labels)
+                        {
+                            [ShocK8sLabels.SHOC_POD_ROLE] = ShocK8sPodRoles.WORKER
+                        }
+                    },
+                    Spec = new V1PodSpec
+                    {
+                        ImagePullSecrets = GetPullSecrets(input),
+                        RestartPolicy = DEFAULT_RESTART_POLICY,
+                        ServiceAccountName = input.ServiceAccount,
+                        SecurityContext = GetPodSecurityContext(input.Runtime),
+                        Containers = new List<V1Container>
+                        {
+                            new()
+                            {
+                                EnvFrom = GetEnvSources(input),
+                                Name = GetWorkerContainerName(input.Task),
+                                Image = input.PullSecret.Image,
+                                Env = GetIndexerVars(input.Task),
+                                SecurityContext = GetSecurityContext(input.Runtime),
+                                Resources = new V1ResourceRequirements
+                                {
+                                    Requests = GetContainerResources(mpiSpec.Workers.Resources),
+                                    Limits = GetContainerResources(mpiSpec.Workers.Resources)
+                                },
+                                Command = ["/usr/sbin/sshd"],
+                                Args = ["-De", "-f", $"/home/{input.Runtime.User}/.sshd_config"],
+                                ReadinessProbe = isOpenMpi
+                                    ? null
+                                    : new V1Probe
+                                    {
+                                        InitialDelaySeconds = 2,
+                                        TcpSocket = new V1TCPSocketAction
+                                        {
+                                            Port = 2222
+                                        }
+                                    }
+                            }
+                        }
+                    }
+                }
+            };
+        }
         
         var instance = new MPIJob
         {
@@ -84,8 +224,8 @@ public class MpiKubernetesTaskClient : BaseKubernetesTaskClient
             },
             Spec = new MPIJobSpec
             {
-                SlotsPerWorker = 1,
-                RunLauncherAsWorker = false,
+                SlotsPerWorker = slots,
+                RunLauncherAsWorker = !mpiSpec.Launcher.Dedicated,
                 SSHAuthMountPath = $"/home/{input.Runtime.User}/.ssh",
                 LauncherCreationPolicy = "WaitForWorkersReady",
                 MPIImplementation = MapMpiImplementation(input.Runtime.Implementation),
@@ -97,90 +237,7 @@ public class MpiKubernetesTaskClient : BaseKubernetesTaskClient
                     ActiveDeadlineSeconds = (int)TimeSpan.FromDays(30).TotalSeconds,
                     Suspend = false,
                 },
-                MPIReplicaSpecs = new Dictionary<string, ReplicaSpec>
-                {
-                    {"Launcher", new ReplicaSpec
-                        {
-                            Replicas = 1,
-                            RestartPolicy = DEFAULT_RESTART_POLICY,
-                            Template = new V1PodTemplateSpec
-                            {
-                                Metadata = new V1ObjectMeta
-                                {
-                                    Labels = new Dictionary<string, string>(labels)
-                                    {
-                                        [ShocK8sLabels.SHOC_POD_ROLE] = ShocK8sPodRoles.EXECUTOR
-                                    }
-                                },
-                                Spec = new V1PodSpec
-                                {
-                                    ImagePullSecrets = GetPullSecrets(input),
-                                    RestartPolicy = DEFAULT_RESTART_POLICY,
-                                    ServiceAccountName = input.ServiceAccount,
-                                    SecurityContext = GetPodSecurityContext(input.Runtime),
-                                    Containers = new List<V1Container>
-                                    {
-                                        new()
-                                        {
-                                            EnvFrom = GetEnvSources(input),
-                                            Name = GetLauncherContainerName(input.Task),
-                                            Image = input.PullSecret.Image,
-                                            Env = GetIndexerVars(input.Task),
-                                            SecurityContext = GetSecurityContext(input.Runtime),
-                                            Command = isOpenMpi ? ["mpirun"] : null,
-                                            Args = (isOpenMpi ? ["-np", "4"] : new[] {"mpirun", "-np", "4"}).Concat(input.Runtime.Entrypoint).ToList()
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    {"Worker", new ReplicaSpec
-                    {
-                        Replicas = 1,
-                        RestartPolicy = DEFAULT_RESTART_POLICY,
-                        Template = new V1PodTemplateSpec
-                        {
-                            Metadata = new V1ObjectMeta
-                            {
-                                Labels = new Dictionary<string, string>(labels)
-                                {
-                                    [ShocK8sLabels.SHOC_POD_ROLE] = ShocK8sPodRoles.WORKER
-                                }
-                            },
-                            Spec = new V1PodSpec
-                            {
-                                ImagePullSecrets = GetPullSecrets(input),
-                                RestartPolicy = DEFAULT_RESTART_POLICY,
-                                ServiceAccountName = input.ServiceAccount,
-                                SecurityContext = GetPodSecurityContext(input.Runtime),
-                                Containers = new List<V1Container>
-                                {
-                                    new()
-                                    {
-                                        EnvFrom = GetEnvSources(input),
-                                        Name = GetWorkerContainerName(input.Task),
-                                        Image = input.PullSecret.Image,
-                                        Env = GetIndexerVars(input.Task),
-                                        SecurityContext = GetSecurityContext(input.Runtime),
-                                        Command = ["/usr/sbin/sshd"],
-                                        Args = ["-De", "-f", $"/home/{input.Runtime.User}/.sshd_config"],
-                                        ReadinessProbe = isOpenMpi ? null : new V1Probe
-                                        {
-                                            InitialDelaySeconds = 2,
-                                            TcpSocket = new V1TCPSocketAction
-                                            {
-                                                Port = 2222
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    }
-                }
-
+                MPIReplicaSpecs = replicaSpecs
             }
         };
 

@@ -30,15 +30,37 @@ public class KubernetesClusterClient : KubernetesClientBase, IDisposable
         // list nodes
         var nodes = await client.ListNodeAsync();
 
-        // the result collection
-        return nodes.Items.Select(node => new NodeResourceResult
+        // final results
+        var result = new List<NodeResourceResult>();
+
+        // process each node
+        foreach (var node in nodes)
         {
-            Name = node.Metadata.Name,
-            Cpu = node.Status.Allocatable[WellKnownResources.CPU].ToString(),
-            Memory = node.Status.Allocatable[WellKnownResources.MEMORY].ToString(),
-            NvidiaGpu = node.Status.Allocatable.TryGetValue(WellKnownResources.NVIDIA_GPU, out var nvidiaValue) ? nvidiaValue.ToString() : "0",
-            AmdGpu = node.Status.Allocatable.TryGetValue(WellKnownResources.AMD_GPU, out var amdValue) ? amdValue.ToString() : "0"
-        });
+            // get the condition of type Ready if any
+            var readyCondition = node.Status.Conditions.FirstOrDefault(c => c.Type == "Ready");
+            
+            // ready only if condition is there and the status is true
+            var isReady = readyCondition is { Status: "True" };
+            
+            // the scheduling is allowed if no taints or no taints that disallowing the scheduling
+            var allowedScheduling = node.Spec.Taints == null || !node.Spec.Taints.Any(taint =>  taint.Effect is "NoSchedule" or "NoExecute");
+            
+            // can schedule if "Unschedulable" field is false
+            var canSchedule = !node.Spec.Unschedulable.GetValueOrDefault(false);
+            
+            result.Add(new NodeResourceResult
+            {
+                Name = node.Metadata.Name,
+                CanSchedule = isReady && allowedScheduling && canSchedule,
+                Cpu = node.Status.Allocatable.TryGetValue(WellKnownResources.CPU, out var cpuValue) ? cpuValue?.ToString() ?? "0" : "0",
+                Memory = node.Status.Allocatable.TryGetValue(WellKnownResources.MEMORY, out var memoryValue) ? memoryValue?.ToString() ?? "0" : "0",
+                NvidiaGpu = node.Status.Allocatable.TryGetValue(WellKnownResources.NVIDIA_GPU, out var nvidiaValue) ? nvidiaValue?.ToString() : null,
+                AmdGpu = node.Status.Allocatable.TryGetValue(WellKnownResources.AMD_GPU, out var amdValue) ? amdValue?.ToString() : null
+            });
+        }
+
+        // the result collection
+        return result;
     }
     
     /// <summary>

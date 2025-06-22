@@ -11,6 +11,11 @@ public class JobRunManifestSpecMpiWorkersModel
     public long? Replicas { get; set; }
     
     /// <summary>
+    /// The slots per worker
+    /// </summary>
+    public long? SlotsPerWorker { get; set; }
+    
+    /// <summary>
     /// The distribution unit (type of resource: cpu, memory, etc.)
     /// </summary>
     public string DistributionUnit { get; set; }

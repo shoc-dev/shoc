@@ -36,6 +36,7 @@ public class JobResourceAllocatorFactory
         return type switch
         {
             JobTaskTypes.FUNCTION => new JobFunctionResourceAllocator(this.resourceFormatter, nodes),
+            JobTaskTypes.MPI => new JobMpiResourceAllocator(this.resourceFormatter, nodes),
             _ => throw ErrorDefinition.Validation(JobErrors.INVALID_RUNTIME_TYPE, $"The '{type}' jobs does not support resource allocation").AsException()
         };
     }

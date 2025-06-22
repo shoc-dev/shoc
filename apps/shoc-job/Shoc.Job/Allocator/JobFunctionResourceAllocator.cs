@@ -1,10 +1,7 @@
 using System.Collections.Generic;
 using System.Text.Json;
-using Shoc.Core;
-using Shoc.Job.Model;
 using Shoc.Job.Model.Cluster;
 using Shoc.Job.Model.Job;
-using Shoc.Job.Model.JobTask;
 
 namespace Shoc.Job.Allocator;
 
@@ -44,36 +41,19 @@ public class JobFunctionResourceAllocator : JobResourceAllocatorBase
         
         // initialize default values
         output.Resources ??= new JobRunManifestResourcesModel();
-        output.Resources.Cpu ??= $"{DEFAULT_FUNCTION_CPU}m";
-        output.Resources.Memory ??= DEFAULT_FUNCTION_MEMORY.ToString();
-
-        // parse total resource requirements
-        var total = this.jobResourceFormatter.FromManifest(output.Resources);
+        output.Resources.Cpu ??= DEFAULT_FUNCTION_CPU;
+        output.Resources.Memory ??= DEFAULT_FUNCTION_MEMORY;
+        
+        // validate self-consistency of the resources
+        this.ValidateSelfContradiction(output.Resources);
         
         // validating total resource requirements
-        this.ValidateResources(total);
+        this.ValidateResourcesRangeValidity(output.Resources);
         
         // validate if running job is feasible on the cluster
-        this.ValidateClusterFeasibility(nodes, total);
+        this.ValidateAnyNodeFeasibility(output.Resources);
 
         // return modified output
         return output;
-    }
-    
-    /// <summary>
-    /// Validates the cluster resources for function task
-    /// </summary>
-    /// <param name="nodeResources">The node resources</param>
-    /// <param name="requirements">The resources to validate against</param>
-    private void ValidateClusterFeasibility(IEnumerable<ClusterNodeResourcesModel> nodeResources, JobTaskResourcesModel requirements)
-    {
-        // count capable nodes
-        var capableNodes = this.GetCapableNodes(nodeResources, requirements).Count;
-
-        // if there are no capable nodes to take one task, report not feasible
-        if (capableNodes == 0)
-        {
-            throw ErrorDefinition.Validation(JobErrors.INVALID_JOB_RESOURCES, "None of the nodes has enough allocatable resources").AsException();
-        }
     }
 }

@@ -11,6 +11,11 @@ public class NodeResourceResult
     public string Name { get; set; }
     
     /// <summary>
+    /// Indicate if jobs can be scheduled on the node
+    /// </summary>
+    public bool CanSchedule { get; set; }
+    
+    /// <summary>
     /// The CPU resources available on the node
     /// </summary>
     public string Cpu { get; set; }

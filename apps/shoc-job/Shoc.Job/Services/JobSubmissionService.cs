@@ -214,7 +214,7 @@ public class JobSubmissionService : JobServiceBase
         var manifest = allocator.Allocate(input.Manifest);
 
         // parse the resources from manifest
-        var resources = this.resourceFormatter.FromManifest(manifest.Resources);
+        var resources = manifest.Resources;
         
         // create a job instance
         var job = new JobModel
@@ -245,7 +245,7 @@ public class JobSubmissionService : JobServiceBase
         var tasks = new List<JobTaskModel>();
         
         // the spec as json
-        var specJson = ToJsonString(input.Manifest.Spec);
+        var specJson = ToJsonString(manifest.Spec);
         
         // create tasks corresponding to number of replicas
         for (var i = 0; i < job.TotalTasks; ++i)
@@ -416,6 +416,7 @@ public class JobSubmissionService : JobServiceBase
         {
             Job = job,
             Task = task,
+            Spec = FromJsonString<JobRunManifestSpecModel>(task.Spec),
             Runtime = DeserializeRuntime(task.Runtime),
             Namespace = nsResult.Namespace.Name(),
             ServiceAccount = saResult.ServiceAccount.Name(),
@@ -622,13 +623,31 @@ public class JobSubmissionService : JobServiceBase
     /// <returns></returns>
     private ClusterNodeResourcesModel ParseNodeResult(NodeResourceResult node)
     {
+        // parse the CPU
+        var cpu = this.resourceParser.ParseToMillicores(node.Cpu) ?? 0;
+        
+        // parse the memory
+        var memory = this.resourceParser.ParseToBytes(node.Memory) ?? 0;
+
+        // parse the nvidia.com/gpu resources
+        var nvidiaGpu = this.resourceParser.ParseToGpu(node.NvidiaGpu);
+
+        // parse the amd.com/gpu resources
+        var amdGpu = this.resourceParser.ParseToGpu(node.AmdGpu);
+        
         return new ClusterNodeResourcesModel
         {
             Name = node.Name,
-            Cpu = this.resourceParser.ParseToMillicores(node.Cpu),
-            Memory = this.resourceParser.ParseToBytes(node.Memory),
-            NvidiaGpu = this.resourceParser.ParseToGpu(node.NvidiaGpu),
-            AmdGpu = this.resourceParser.ParseToGpu(node.AmdGpu)
+            CanSchedule = node.CanSchedule,
+            Cpu = cpu,
+            Memory = memory,
+            NvidiaGpu = nvidiaGpu,
+            AmdGpu = amdGpu,
+            MemoryCpuRatio = cpu > 0 && memory > 0 ? memory * 1.0m / cpu : null,
+            MemoryNvidiaGpuRatio = nvidiaGpu > 0 && memory * 1.0m > 0 ? memory / nvidiaGpu : null,
+            CpuNvidiaGpuRatio = nvidiaGpu > 0 && cpu > 0 ? cpu * 1.0m / nvidiaGpu : null,
+            MemoryAmdGpuRatio = amdGpu > 0 && memory > 0 ? memory * 1.0m / amdGpu : null,
+            CpuAmdGpuRatio = amdGpu > 0 && cpu > 0 ? cpu / amdGpu * 1.0m : null
         };
     }
 
