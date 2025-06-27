@@ -27,7 +27,7 @@
     "make": {
       "type": "string",
       "optional": true,
-      "description": "An array of entrypoint commands. Required to ensure safe container execution."
+      "description": "A make goal to execute. Used to build your executable from source."
     }
   },
   "required": ["entrypoint"],

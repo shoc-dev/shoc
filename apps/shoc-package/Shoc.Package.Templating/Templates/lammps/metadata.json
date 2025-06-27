@@ -1,5 +1,5 @@
 {
-  "title": "Lammps Base Image (OpenMPI)",
-  "description": "Complete lammps distribution based on OpenMPI.",
+  "title": "Lammps Base Image",
+  "description": "A template for building containers to run Large-scale Atomic/Molecular Massively Parallel Simulator (LAMMPS) simulations. Optimized for molecular dynamics and materials science workloads.",
   "author": "davitp"
 }

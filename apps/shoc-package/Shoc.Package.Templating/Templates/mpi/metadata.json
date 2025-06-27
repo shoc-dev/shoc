@@ -1,5 +1,5 @@
 {
   "title": "MPI Base Image",
-  "description": "A minimal template containing an MPI distribution according to the requested implementation.",
+  "description": "A template for building containers to run parallel applications using the Message Passing Interface (MPI) standard. Designed for high-performance computing (HPC) workloads.",
   "author": "davitp"
 }
