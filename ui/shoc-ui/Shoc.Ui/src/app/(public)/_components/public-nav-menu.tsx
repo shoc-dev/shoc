@@ -23,6 +23,11 @@ export default function PublicNavMenu(props: NavigationMenuProps) {
                         <Link prefetch={false} href="/templates">{intl.formatMessage({ id: 'landing.navbar.templates' })}</Link>
                     </NavigationMenuLink>
                 </NavigationMenuItem>
+                <NavigationMenuItem>
+                    <NavigationMenuLink asChild>
+                        <Link prefetch={false} target="_blank" href="https://docs.shoc.dev">{intl.formatMessage({ id: 'landing.navbar.docs' })}</Link>
+                    </NavigationMenuLink>
+                </NavigationMenuItem>
             </NavigationMenuList>
         </NavigationMenu>
     )
