@@ -37,4 +37,12 @@ export default class TemplatesClient extends BaseAxiosClient {
     
     return this.webClient.get(url);
   }
+
+  getVariantSpec(name, variant) {
+    const url = this.urlify({
+      api: `api/templates/${name}/variants/${variant}/build-spec`
+    });
+    
+    return this.webClient.get(url);
+  }
 }
