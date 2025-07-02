@@ -77,7 +77,7 @@ export default async function VariantPage(props: PageProps) {
                         <h2 className="sm:text-2xl text-xl font-bold">
                             {intl.formatMessage({id: 'templates.sections.usage'})}
                         </h2>
-                        <CodeBlock className="mt-2" language="bash" code={`shoc init ${name}:${variant}`} />
+                        <CodeBlock className="mt-2" language="bash" code={`shoc templates init ${name}:${variant}`} />
                     </div>
                     <Typography className="mt-4">
                         <h2 className="sm:text-2xl text-xl font-bold">
