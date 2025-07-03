@@ -146,8 +146,8 @@ public class MpiKubernetesTaskClient : BaseKubernetesTaskClient
                                         Requests = GetContainerResources(launcherResources),
                                         Limits = GetContainerResources(launcherResources)
                                     },
-                                    Command = ["mpirun"],
-                                    Args = new[] { "-np", $"{processes}" }
+                                    Command = ["/app/entrypoint.sh"],
+                                    Args = new[] { "mpirun", "-np", $"{processes}" }
                                         .Concat(input.Runtime.Entrypoint)
                                         .Concat(extraArgs)
                                         .ToList()
