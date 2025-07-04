@@ -55,7 +55,7 @@ public class RegistryPlainCredentialServiceGrpc : Registries.RegistryPlainCreden
         await this.accessAuthorization.RequireScopesAll(context.GetHttpContext(), new []{ KnownScopes.SVC });
 
         // create a protector
-        var protector = this.credentialProtectionProvider.Create();
+        var protector = this.credentialProtectionProvider.Create(request.WorkspaceId);
         
         // the result of the operation
         var result =
@@ -80,7 +80,7 @@ public class RegistryPlainCredentialServiceGrpc : Registries.RegistryPlainCreden
         await this.accessAuthorization.RequireScopesAll(context.GetHttpContext(), new []{ KnownScopes.SVC });
 
         // create a protector
-        var protector = this.credentialProtectionProvider.Create();
+        var protector = this.credentialProtectionProvider.Create(request.WorkspaceId);
 
         // the result of the operation
         var result = await this.registryCredentialService.GetOrCreatePullCredential(request.RegistryId, request.WorkspaceId, request.UserId);

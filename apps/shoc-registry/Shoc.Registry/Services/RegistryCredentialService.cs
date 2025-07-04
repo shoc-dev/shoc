@@ -326,7 +326,7 @@ public class RegistryCredentialService : RegistryServiceBase
         ValidatePassword(input.Password);
 
         // create a protector
-        var protector = this.credentialProtectionProvider.Create();
+        var protector = this.credentialProtectionProvider.Create(input.WorkspaceId);
         
         // protect and initialize the encrypted password field
         input.PasswordEncrypted = protector.Protect(input.Password);
@@ -393,13 +393,13 @@ public class RegistryCredentialService : RegistryServiceBase
         input.Id = id;
         
         // require the parent object
-        await this.RequireRegistryById(input.RegistryId);
+        var registry = await this.RequireRegistryById(input.RegistryId);
         
         // validate password
         ValidatePassword(input.Password);
         
         // create a protector
-        var protector = this.credentialProtectionProvider.Create();
+        var protector = this.credentialProtectionProvider.Create(registry.WorkspaceId);
         
         // protect and initialize the encrypted password field
         input.PasswordEncrypted = protector.Protect(input.Password);

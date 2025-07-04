@@ -109,6 +109,37 @@ public class MpiKubernetesTaskClient : BaseKubernetesTaskClient
             TaskId = input.Task.Id
         });
 
+        // get the runtime volume
+        var runtimeVolume = GetRuntimeVolume(input);
+
+        // the list of volumes for the pod
+        var podVolumes = new List<V1Volume>();
+        
+        // add runtime volume if given
+        if (runtimeVolume != null)
+        {
+            podVolumes.Add(runtimeVolume);
+        }
+
+        // the volume mounts
+        var containerVolumeMounts = new List<V1VolumeMount>();
+
+        // add runtime volume mount if volume is defined
+        if (runtimeVolume != null)
+        {
+            containerVolumeMounts.Add(new V1VolumeMount
+            {
+                Name = runtimeVolume.Name,
+                MountPath = K8sConstants.SHOC_RUNTIME_PATH,
+                ReadOnlyProperty = false
+            });
+        }
+
+        // based on whether runtime is given use provided entrypoint otherwise fallback to default
+        var entrypoint = runtimeVolume != null ? 
+            $"{K8sConstants.SHOC_RUNTIME_PATH}/{K8sConstants.SHOC_SHARED_RUNTIME_CONFIG_ENTRYPOINT_KEY}" 
+            : "/app/entrypoint.sh";
+        
         // initialize the replica specs
         var replicaSpecs = new Dictionary<string, ReplicaSpec>
         {
@@ -132,6 +163,7 @@ public class MpiKubernetesTaskClient : BaseKubernetesTaskClient
                             RestartPolicy = DEFAULT_RESTART_POLICY,
                             ServiceAccountName = input.ServiceAccount,
                             SecurityContext = GetPodSecurityContext(input.Runtime),
+                            Volumes = podVolumes,
                             Containers = new List<V1Container>
                             {
                                 new()
@@ -141,12 +173,13 @@ public class MpiKubernetesTaskClient : BaseKubernetesTaskClient
                                     Image = input.PullSecret.Image,
                                     Env = GetIndexerVars(input.Task),
                                     SecurityContext = GetSecurityContext(input.Runtime),
+                                    VolumeMounts = containerVolumeMounts,
                                     Resources = new V1ResourceRequirements
                                     {
                                         Requests = GetContainerResources(launcherResources),
                                         Limits = GetContainerResources(launcherResources)
                                     },
-                                    Command = ["/app/entrypoint.sh"],
+                                    Command = [entrypoint],
                                     Args = new[] { "mpirun", "-np", $"{processes}" }
                                         .Concat(input.Runtime.Entrypoint)
                                         .Concat(extraArgs)
@@ -385,6 +418,36 @@ public class MpiKubernetesTaskClient : BaseKubernetesTaskClient
             "mpich" => "MPICH",
             "intel" => "Intel",
             _ => "OpenMPI"
+        };
+    }
+
+    /// <summary>
+    /// Gets the runtime volume if given
+    /// </summary>
+    /// <param name="input">The input</param>
+    /// <returns></returns>
+    private static V1Volume GetRuntimeVolume(InitTaskInput input)
+    {
+        // if no runtime config is given return null
+        if (input.SharedRuntime?.RuntimeConfig == null)
+        {
+            return null;
+        }
+        
+        // build the runtime config
+        return new()
+        {
+            Name = $"{K8sConstants.SHOC_SHARED_RUNTIME_CONFIG}-volume",
+            ConfigMap = new V1ConfigMapVolumeSource
+            {
+                Name = input.SharedRuntime.RuntimeConfig.Name(),
+                Items = input.SharedRuntime.RuntimeConfig.Data.Select(kv => new V1KeyToPath
+                {
+                    Key = kv.Key,
+                    Path = kv.Key,
+                    Mode = Convert.ToInt32("755", 8)
+                }).ToList()
+            }
         };
     }
 }

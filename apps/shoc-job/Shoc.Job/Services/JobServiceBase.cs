@@ -27,6 +27,11 @@ public abstract class JobServiceBase
     /// The protection provider
     /// </summary>
     protected readonly JobProtectionProvider jobProtectionProvider;
+
+    /// <summary>
+    /// The job client factory
+    /// </summary>
+    protected readonly KubernetesJobClientFactory jobClientFactory;
     
     /// <summary>
     /// The task client factory for Kubernetes
@@ -44,13 +49,15 @@ public abstract class JobServiceBase
     /// <param name="jobRepository">The job repository</param>
     /// <param name="validationService">The validation service</param>
     /// <param name="jobProtectionProvider">The protection provider</param>
+    /// <param name="jobClientFactory">The job client factory</param>
     /// <param name="taskClientFactory">The task client factory</param>
     /// <param name="taskRepository">The task repository</param>
-    protected JobServiceBase(IJobRepository jobRepository, JobValidationService validationService, JobProtectionProvider jobProtectionProvider, KubernetesTaskClientFactory taskClientFactory, IJobTaskRepository taskRepository)
+    protected JobServiceBase(IJobRepository jobRepository, JobValidationService validationService, JobProtectionProvider jobProtectionProvider, KubernetesJobClientFactory jobClientFactory, KubernetesTaskClientFactory taskClientFactory, IJobTaskRepository taskRepository)
     {
         this.jobRepository = jobRepository;
         this.validationService = validationService;
         this.jobProtectionProvider = jobProtectionProvider;
+        this.jobClientFactory = jobClientFactory;
         this.taskClientFactory = taskClientFactory;
         this.taskRepository = taskRepository;
     }

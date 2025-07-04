@@ -34,6 +34,21 @@ public static class K8sConstants
     /// The shared pull secret
     /// </summary>
     public const string SHOC_SHARED_PULL_SECRET = "shared-pull-secret";
+
+    /// <summary>
+    /// The shared runtime config name
+    /// </summary>
+    public const string SHOC_SHARED_RUNTIME_CONFIG = "shared-runtime-config";
+    
+    /// <summary>
+    /// The shared runtime config name
+    /// </summary>
+    public const string SHOC_RUNTIME_PATH = "/shoc-runtime";
+
+    /// <summary>
+    /// The entrypoint key
+    /// </summary>
+    public const string SHOC_SHARED_RUNTIME_CONFIG_ENTRYPOINT_KEY = "entrypoint.sh";
     
     /// <summary>
     /// The default version for managed objects

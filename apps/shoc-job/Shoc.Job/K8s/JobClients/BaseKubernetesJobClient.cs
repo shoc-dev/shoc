@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -10,12 +13,12 @@ using Shoc.Job.K8s.Model;
 using Shoc.Job.Model.Job;
 using Shoc.Job.Model.JobTask;
 
-namespace Shoc.Job.K8s;
+namespace Shoc.Job.K8s.JobClients;
 
 /// <summary>
 /// The kubernetes job client
 /// </summary>
-public class KubernetesJobClient : KubernetesClientBase, IDisposable
+public class BaseKubernetesJobClient : KubernetesClientBase, IKubernetesJobClient
 {
     /// <summary>
     /// The unspecific container registry
@@ -26,7 +29,7 @@ public class KubernetesJobClient : KubernetesClientBase, IDisposable
     /// The kubernetes client for job operations
     /// </summary>
     /// <param name="config">The cluster config for authentication</param>
-    public KubernetesJobClient(string config) : base(config)
+    protected BaseKubernetesJobClient(string config) : base(config)
     {
     }
     
@@ -35,7 +38,7 @@ public class KubernetesJobClient : KubernetesClientBase, IDisposable
     /// </summary>
     /// <param name="job">The job object</param>
     /// <returns></returns>
-    public async Task<InitNamespaceResult> InitNamespace(JobModel job)
+    public virtual async Task<InitNamespaceResult> InitNamespace(JobModel job)
     {
         // create default labels 
         var labels = CreateManagedLabels(new ManagedMetadata
@@ -69,7 +72,7 @@ public class KubernetesJobClient : KubernetesClientBase, IDisposable
     /// </summary>
     /// <param name="job">The job object</param>
     /// <returns></returns>
-    public async Task<InitServiceAccountResult> InitServiceAccount(JobModel job)
+    public virtual async Task<InitServiceAccountResult> InitServiceAccount(JobModel job)
     {
         // create default labels 
         var labels = CreateManagedLabels(new ManagedMetadata
@@ -161,7 +164,7 @@ public class KubernetesJobClient : KubernetesClientBase, IDisposable
     /// <param name="job">The job object</param>
     /// <param name="envs">The environment input</param>
     /// <returns></returns>
-    public async Task<InitSharedEnvsResult> InitSharedEnvironment(JobModel job, JobTaskEnvModel envs)
+    public virtual async Task<InitSharedEnvsResult> InitSharedEnvironment(JobModel job, JobTaskEnvModel envs)
     {
         // create default labels 
         var labels = CreateManagedLabels(new ManagedMetadata
@@ -219,7 +222,7 @@ public class KubernetesJobClient : KubernetesClientBase, IDisposable
     /// <param name="job">The job object</param>
     /// <param name="packageReference">The package reference</param>
     /// <returns></returns>
-    public async Task<InitPullSecretResult> InitPullSecret(JobModel job, JobTaskPackageReferenceModel packageReference)
+    public virtual async Task<InitPullSecretResult> InitPullSecret(JobModel job, JobTaskPackageReferenceModel packageReference)
     {
         // create default labels 
         var labels = CreateManagedLabels(new ManagedMetadata
@@ -268,6 +271,19 @@ public class KubernetesJobClient : KubernetesClientBase, IDisposable
     }
 
     /// <summary>
+    /// Initializes the shared runtime
+    /// </summary>
+    /// <param name="job">The job object</param>
+    /// <returns></returns>
+    public virtual Task<InitSharedRuntimeResult> InitSharedRuntime(JobModel job)
+    {
+        return Task.FromResult(new InitSharedRuntimeResult
+        {
+            RuntimeConfig = null
+        });
+    }
+
+    /// <summary>
     /// Performs a K8s action with namespace cleanup fallback
     /// </summary>
     /// <param name="ns">The namespace</param>
@@ -308,6 +324,34 @@ public class KubernetesJobClient : KubernetesClientBase, IDisposable
 
         // if it contains a domain (e.g., ghcr.io/org/image or registry.example.com/image)
         return parts[0].Contains('.') || parts[0].Contains(':') ? parts[0] : UNSPECIFIED_CONTAINER_REGISTRY;
+    }
+    
+    /// <summary>
+    /// Loads the file with the give path or null if does not exist
+    /// </summary>
+    /// <param name="path">The path to the file</param>
+    /// <returns></returns>
+    protected static async Task<string> LoadFileOrNull(string path)
+    {
+        // file does not exist
+        if (!File.Exists(path))
+        {
+            return null;
+        }
+
+        return await File.ReadAllTextAsync(path);
+    }
+    
+    /// <summary>
+    /// Gets the templates directory
+    /// </summary>
+    /// <returns></returns>
+    protected static string GetScriptsPath(params string[] nested)
+    {
+        // get the execution directory
+        var sourceDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? string.Empty;
+
+        return Path.Combine(new [] {sourceDirectory}.Union(nested).ToArray());
     }
 
     /// <summary>

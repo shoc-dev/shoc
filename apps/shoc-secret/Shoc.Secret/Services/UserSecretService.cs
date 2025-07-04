@@ -131,7 +131,7 @@ public class UserSecretService : UserSecretServiceBase
         }
         
         // create a protector
-        var protector = this.protectionProvider.Create();
+        var protector = this.protectionProvider.Create(workspaceId);
         
         // encrypt if needed
         input.Value = input.Encrypted ? protector.Protect(input.Value) : input.Value;
@@ -211,7 +211,7 @@ public class UserSecretService : UserSecretServiceBase
         await this.RequireById(workspaceId, userId, id);
         
         // create a protector
-        var protector = this.protectionProvider.Create();
+        var protector = this.protectionProvider.Create(workspaceId);
         
         // encrypt if needed
         input.Value = input.Encrypted ? protector.Protect(input.Value) : input.Value;

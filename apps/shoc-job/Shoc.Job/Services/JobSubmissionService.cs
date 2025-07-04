@@ -97,12 +97,13 @@ public class JobSubmissionService : JobServiceBase
     /// <param name="secretResolver">The secret resolver</param>
     /// <param name="resourceParser">The resource parser</param>
     /// <param name="resourceFormatter">The resource formatter</param>
+    /// <param name="jobClientFactory">The job client factory</param>
     /// <param name="taskClientFactory">The task client factory for Kubernetes</param>
     /// <param name="taskStatusRepository">The task status repository</param>
     /// <param name="schedulerFactory">The scheduler factory</param>
     /// <param name="allocatorFactory">The allocator factory</param>
-    public JobSubmissionService(IJobRepository jobRepository, JobValidationService validationService, JobProtectionProvider jobProtectionProvider, IJobTaskRepository taskRepository, JobPackageResolver packageResolver, JobClusterResolver clusterResolver, JobSecretResolver secretResolver, ResourceParser resourceParser, JobResourceFormatter resourceFormatter, KubernetesTaskClientFactory taskClientFactory, IJobTaskStatusRepository taskStatusRepository, ISchedulerFactory schedulerFactory, JobResourceAllocatorFactory allocatorFactory) 
-        : base(jobRepository, validationService, jobProtectionProvider, taskClientFactory, taskRepository)
+    public JobSubmissionService(IJobRepository jobRepository, JobValidationService validationService, JobProtectionProvider jobProtectionProvider, IJobTaskRepository taskRepository, JobPackageResolver packageResolver, JobClusterResolver clusterResolver, JobSecretResolver secretResolver, ResourceParser resourceParser, JobResourceFormatter resourceFormatter, KubernetesJobClientFactory jobClientFactory, KubernetesTaskClientFactory taskClientFactory, IJobTaskStatusRepository taskStatusRepository, ISchedulerFactory schedulerFactory, JobResourceAllocatorFactory allocatorFactory) 
+        : base(jobRepository, validationService, jobProtectionProvider, jobClientFactory, taskClientFactory, taskRepository)
     {
         this.packageResolver = packageResolver;
         this.clusterResolver = clusterResolver;
@@ -150,7 +151,7 @@ public class JobSubmissionService : JobServiceBase
         await this.ValidateInput(input);
 
         // the protection provider
-        var protector = this.jobProtectionProvider.Create();
+        var protector = this.jobProtectionProvider.Create(workspaceId);
         
         // build wrapped arguments model
         var args = new JobTaskArgsModel
@@ -373,7 +374,7 @@ public class JobSubmissionService : JobServiceBase
         }
         
         // the protection provider
-        var protector = this.jobProtectionProvider.Create();
+        var protector = this.jobProtectionProvider.Create(workspace.Id);
 
         // the cluster configuration
         var clusterConfig = protector.Unprotect(job.ClusterConfigEncrypted);
@@ -391,7 +392,7 @@ public class JobSubmissionService : JobServiceBase
         await taskClient.EnsureSupported();
 
         // the job client for kubernetes
-        using var jobClient = new KubernetesJobClient(clusterConfig);
+        using var jobClient = this.jobClientFactory.Create(clusterConfig, tasks[0].Type);
 
         // build the namespace name from workspace name and job local id
         var ns = $"job-{workspace.Name}-{job.LocalId}";
@@ -411,6 +412,9 @@ public class JobSubmissionService : JobServiceBase
         // initialize the shared pull secret for the package
         var pullSecretResult = await jobClient.WithCleanup(job.Namespace, () => jobClient.InitPullSecret(job, packageReference));
         
+        // initialize all the shared runtime configuration
+        var sharedRuntimeResult = await jobClient.WithCleanup(job.Namespace, () => jobClient.InitSharedRuntime(job));
+        
         // initiate all submissions for all tasks
         var allSubmissions = tasks.Select(task => this.SubmitTask(taskClient, new InitTaskInput
         {
@@ -422,7 +426,8 @@ public class JobSubmissionService : JobServiceBase
             Namespace = nsResult.Namespace.Name(),
             ServiceAccount = saResult.ServiceAccount.Name(),
             PullSecret = pullSecretResult,
-            SharedEnv = envsResult
+            SharedEnv = envsResult,
+            SharedRuntime = sharedRuntimeResult
         })).ToList();
 
         // wait for all results to complete

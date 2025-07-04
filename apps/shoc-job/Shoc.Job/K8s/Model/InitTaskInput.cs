@@ -52,4 +52,9 @@ public class InitTaskInput
     /// The shared environment
     /// </summary>
     public InitSharedEnvsResult SharedEnv { get; set; }
+    
+    /// <summary>
+    /// The shared runtime
+    /// </summary>
+    public InitSharedRuntimeResult SharedRuntime { get; set; }
 }

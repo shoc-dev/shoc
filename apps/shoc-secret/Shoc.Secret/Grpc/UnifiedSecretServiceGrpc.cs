@@ -75,10 +75,10 @@ public class UnifiedSecretServiceGrpc : Secrets.UnifiedSecretServiceGrpc.Unified
         var result = new GetUnifiedSecretsResponse();
 
         // the secret provider
-        var secretProtector = secretProtectionProvider.Create();
+        var secretProtector = secretProtectionProvider.Create(request.WorkspaceId);
         
         // the user secret provider
-        var userSecretProtector = userSecretProtectionProvider.Create();
+        var userSecretProtector = userSecretProtectionProvider.Create(request.WorkspaceId);
         
         // add resulting secrets mapped to grpc model
         result.Secrets.AddRange(items.Select(item =>

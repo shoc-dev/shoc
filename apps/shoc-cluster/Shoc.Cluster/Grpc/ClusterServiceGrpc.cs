@@ -67,7 +67,7 @@ public class ClusterServiceGrpc : Clusters.ClusterServiceGrpc.ClusterServiceGrpc
         if (request.Plain)
         {
             // create protector instance
-            var protector = this.protectionProvider.Create();
+            var protector = this.protectionProvider.Create(request.WorkspaceId);
 
             // decrypt configuration and override existing encrypted field
             result.Configuration = protector.Unprotect(result.Configuration);

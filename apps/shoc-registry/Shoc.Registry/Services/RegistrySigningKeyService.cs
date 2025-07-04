@@ -70,8 +70,11 @@ public class RegistrySigningKeyService : RegistryServiceBase
         // load all the items
         var items = await this.GetAll(registryId);
         
+        // require the registry
+        var registry = await this.RequireRegistryById(registryId);
+        
         // create a protector
-        var protector = this.signingKeyProtectionProvider.Create();
+        var protector = this.signingKeyProtectionProvider.Create(registry.WorkspaceId);
 
         return items.Select(item =>
         {
@@ -153,7 +156,7 @@ public class RegistrySigningKeyService : RegistryServiceBase
         input.RegistryId = registryId;
         
         // require the registry
-        await this.RequireRegistryById(input.RegistryId);
+        var registry = await this.RequireRegistryById(input.RegistryId);
 
         // initialize usage if not given
         input.Usage ??= RegistrySigningKeyUsages.SIGNING;
@@ -177,7 +180,7 @@ public class RegistrySigningKeyService : RegistryServiceBase
         var payload = this.keyProviderService.Serialize(generated);
         
         // create a protector
-        var protector = this.signingKeyProtectionProvider.Create();
+        var protector = this.signingKeyProtectionProvider.Create(registry.WorkspaceId);
         
         // encrypt payload and store
         input.PayloadEncrypted = protector.Protect(payload);

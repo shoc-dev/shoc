@@ -113,7 +113,7 @@ public class SecretService : SecretServiceBase
         }
         
         // create a protector
-        var protector = this.protectionProvider.Create();
+        var protector = this.protectionProvider.Create(workspaceId);
         
         // encrypt if needed
         input.Value = input.Encrypted ? protector.Protect(input.Value) : input.Value;
@@ -183,7 +183,7 @@ public class SecretService : SecretServiceBase
         await this.RequireById(workspaceId, id);
         
         // create a protector
-        var protector = this.protectionProvider.Create();
+        var protector = this.protectionProvider.Create(workspaceId);
         
         // encrypt if needed
         input.Value = input.Encrypted ? protector.Protect(input.Value) : input.Value;

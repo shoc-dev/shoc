@@ -60,6 +60,7 @@
         SET
         `Status` = @Status,
         `CompletedAt` = @CompletedAt,
+        `RunningAt` = COALESCE(@RunningAt, @CompletedAt),
         `Message` = @Message
         WHERE `WorkspaceId` = @WorkspaceId AND `JobId` = @JobId AND `Id` = @Id;
 
@@ -83,7 +84,11 @@
           WHEN `CancelledTasks` = `TotalTasks` THEN @CancelledJobStatus
           WHEN `CompletedTasks` = `TotalTasks` AND `SucceededTasks` > 0 THEN @PartiallySucceededJobStatus
           ELSE `Status`
-          END
+        END,
+        `RunningAt` = CASE
+          WHEN `CompletedTasks` = `TotalTasks` AND `RunningAt` is null THEN @CompletedAt
+          ELSE `RunningAt`
+        END
         WHERE `WorkspaceId` = @WorkspaceId AND `Id` = @JobId;
         
         SELECT * FROM `job_job_tasks`

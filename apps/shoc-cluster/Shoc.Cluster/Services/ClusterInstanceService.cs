@@ -68,7 +68,7 @@ public class ClusterInstanceService : ClusterServiceBase
         var result = await this.RequireClusterById(workspaceId, id);
 
         // the protector instance
-        var protector = this.configurationProtectionProvider.Create();
+        var protector = this.configurationProtectionProvider.Create(workspaceId);
 
         // the kube config
         var config = protector.Unprotect(result.Configuration);
@@ -163,7 +163,7 @@ public class ClusterInstanceService : ClusterServiceBase
         var cluster = await this.RequireClusterById(workspaceId, id);
 
         // the protector instance
-        var protector = this.configurationProtectionProvider.Create();
+        var protector = this.configurationProtectionProvider.Create(workspaceId);
 
         // the kube context
         var context = new KubeContext { Config = protector.Unprotect(cluster.Configuration) };

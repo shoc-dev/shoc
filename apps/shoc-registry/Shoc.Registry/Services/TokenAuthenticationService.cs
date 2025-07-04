@@ -419,12 +419,15 @@ public class TokenAuthenticationService : AuthenticationServiceBase
             Username = username
         });
 
-        // create a credential protector
-        var protector = this.credentialProtectionProvider.Create();
-
         // filter the credentials having a matching password (the first one)
         var validCredential = credentials.FirstOrDefault(credential =>
-            string.Equals(password, protector.Unprotect(credential.PasswordEncrypted)));
+        {
+            // create a credential protector specific for the target credential's workspace if any
+            var protector = this.credentialProtectionProvider.Create(credential.WorkspaceId);
+
+            // unprotect and check
+            return string.Equals(password, protector.Unprotect(credential.PasswordEncrypted));
+        });
 
         // no credential with matching username and password
         if (validCredential == null)

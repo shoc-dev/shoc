@@ -26,7 +26,6 @@ function resolve_host() {
 }
 
 if [ "$K_MPI_JOB_ROLE" == "launcher" ]; then
-  resolve_host "$HOSTNAME"
 
   while read -r line; do
     # Extract the hostname from either MPICH or OpenMPI-style hostfile

@@ -30,8 +30,12 @@ public class UserSecretProtectionProvider
     /// Creates a new data protector
     /// </summary>
     /// <returns></returns>
-    public IDataProtector Create()
+    public IDataProtector Create(string workspaceId)
     {
-        return this.dataProtectionProvider.CreateProtector(USER_SECRET_VALUE_PURPOSE);
+        // create a base protector
+        var baseProtector = this.dataProtectionProvider.CreateProtector(USER_SECRET_VALUE_PURPOSE);
+        
+        // if the tenant is defined use tenant specific protector
+        return !string.IsNullOrWhiteSpace(workspaceId) ? baseProtector.CreateProtector(workspaceId) : baseProtector;
     }
 }

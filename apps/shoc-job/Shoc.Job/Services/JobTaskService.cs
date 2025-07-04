@@ -22,10 +22,11 @@ public class JobTaskService : JobServiceBase
     /// <param name="jobRepository">The job repository</param>
     /// <param name="validationService">The validation service</param>
     /// <param name="jobProtectionProvider">The protection provider</param>
+    /// <param name="jobClientFactory">The job client factory</param>
     /// <param name="taskClientFactory">The task client factory</param>
     /// <param name="taskRepository">The task repository</param>
-    public JobTaskService(IJobRepository jobRepository, JobValidationService validationService, JobProtectionProvider jobProtectionProvider, KubernetesTaskClientFactory taskClientFactory, IJobTaskRepository taskRepository) 
-        : base(jobRepository, validationService, jobProtectionProvider, taskClientFactory, taskRepository)
+    public JobTaskService(IJobRepository jobRepository, JobValidationService validationService, JobProtectionProvider jobProtectionProvider, KubernetesJobClientFactory jobClientFactory, KubernetesTaskClientFactory taskClientFactory, IJobTaskRepository taskRepository) 
+        : base(jobRepository, validationService, jobProtectionProvider, jobClientFactory, taskClientFactory, taskRepository)
     {
     }
     
@@ -196,7 +197,7 @@ public class JobTaskService : JobServiceBase
         }
 
         // protection provider
-        var protector = this.jobProtectionProvider.Create();
+        var protector = this.jobProtectionProvider.Create(job.WorkspaceId);
         
         // the cluster configuration
         var clusterConfig = protector.Unprotect(job.ClusterConfigEncrypted);

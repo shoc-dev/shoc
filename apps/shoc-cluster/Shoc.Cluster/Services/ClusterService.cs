@@ -216,7 +216,7 @@ public class ClusterService : ClusterServiceBase
         }
         
         // create a protector
-        var protector = this.configurationProtectionProvider.Create();
+        var protector = this.configurationProtectionProvider.Create(input.WorkspaceId);
 
         // assign encrypted configuration
         input.Configuration = protector.Protect(input.Configuration);
@@ -295,7 +295,7 @@ public class ClusterService : ClusterServiceBase
         await this.RequireClusterById(input.WorkspaceId, input.Id);
 
         // create a protector
-        var protector = this.configurationProtectionProvider.Create();
+        var protector = this.configurationProtectionProvider.Create(input.WorkspaceId);
 
         // assign encrypted configuration
         input.Configuration = protector.Protect(input.Configuration);

@@ -38,7 +38,7 @@
     <None Include="../.dockerignore" Link=".dockerignore">
       <DependentUpon>$(DockerDefaultDockerfile)</DependentUpon>
     </None>
-    <None Update="K8s\Scripts\Mpi\mpiw.sh">
+    <None Update="K8s\Scripts\Mpi\entrypoint.sh">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

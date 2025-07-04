@@ -187,7 +187,7 @@ public class KubernetesWatchQuartzJob : IJob
         }
         
         // the protector
-        var protector = this.jobProtectionProvider.Create();
+        var protector = this.jobProtectionProvider.Create(workspaceId);
 
         // create a kubernetes client for the task
         using var client = this.taskClientFactory.Create(protector.Unprotect(job.ClusterConfigEncrypted), task.Type);
