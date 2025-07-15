@@ -1,19 +1,27 @@
 # Use the base image "mpi" with a configurable tag (default to latest)
-FROM ghcr.io/shoc-dev/containers/library/{{ implementation ?? "openmpi-builder" }}:{{ tag ?? "latest" }}
+FROM ghcr.io/shoc-dev/containers/library/{{ implementation ?? "openmpi"}}-builder-ubuntu:{{ tag ?? "latest" }}
 
 # Define environment variables for user and group IDs with a default value for uid and user
 ENV SHOC_UID={{ uid ?? system.uid }}
 ENV SHOC_USER={{ user ?? system.user }}
 
 # Create a non-root user with a specific UID and GID
+RUN id -u ubuntu   >/dev/null 2>&1 && userdel ubuntu || echo "user ubuntu not present" && \
+    getent group ubuntu >/dev/null 2>&1 && groupdel ubuntu || echo "group ubuntu not present"
+
+RUN mkdir -p /home/$SHOC_USER && chmod 755 /home/$SHOC_USER
+
 RUN addgroup \
         --gid=$SHOC_UID \
-        $SHOC_USER \
-    && adduser \
+        $SHOC_USER 
+        
+RUN adduser \
         --uid=$SHOC_UID \
         --ingroup=$SHOC_USER \
         --disabled-password \
         $SHOC_USER
+
+RUN chown -R $SHOC_USER:$SHOC_USER /home/$SHOC_USER
 
 # Set the working directory and ensure it has the right permissions
 WORKDIR /app
